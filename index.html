@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Mini Game do Herói - Fases</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      overflow: hidden;
+      transition: background 1s ease;
+      background-color: #e0f7fa;
+    }
+    #menu {
+      opacity: 1;
+      transition: opacity 1s ease;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.85);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 2000;
+    }
+    #menu button {
+      padding: 12px 24px;
+      font-size: 20px;
+      background: #00bcd4;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+    }
+    #menu button:hover {
+      background: #008ba3;
+    }
+    #transicao-fase {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: black;
+      pointer-events: none;
+      clip-path: circle(0% at center);
+      transition: clip-path 1s ease-in-out;
+      z-index: 1000;
+    }
+    #game-area {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: none;
+    }
+    #personagem, #npc, #obstaculo {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      border: 2px solid #fff;
+    }
+    #personagem {
+      background-image: url('https://cdn-icons-png.flaticon.com/512/706/706830.png');
+      background-size: cover;
+      top: 260px;
+      left: 100px;
+    }
+    #npc {
+      background-image: url('https://cdn-icons-png.flaticon.com/512/4140/4140048.png');
+      background-size: cover;
+      top: 200px;
+      left: 200px;
+    }
+    #fala-npc {
+  display: none;
+  position: absolute;
+  top: -90px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  padding: 10px 14px;
+  border: 2px solid #1a237e;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a237e;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  max-width: 240px;
+  width: max-content;
+  max-height: 150px;
+  overflow-wrap: break-word;
+  white-space: normal;
+  text-align: center;
+  z-index: 10;
+  animation: destaqueFala 0.3s ease-in-out;
+}
+    #npc-hint {
+      position: absolute;
+      top: 105%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #fff8e1;
+      color: #333;
+      padding: 6px 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 12px;
+      box-shadow: 0 0 8px #0002;
+      z-index: 5;
+    }
+    #obstaculo {
+      background-color: #5d4037;
+      top: 300px;
+      left: 400px;
+    }
+    #pontuacao, #fase-indicador, #cronometro {
+      position: fixed;
+      top: 10px;
+      background: #fff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-weight: bold;
+      box-shadow: 0 0 10px #0002;
+      z-index: 100;
+    }
+    #pontuacao { left: 10px; }
+    #fase-indicador { right: 10px; }
+    #cronometro { left: 50%; transform: translateX(-50%); }
+  </style>
+</head>
+<body>
+  <div id="menu">
+    <h1>Mini Game do Herói</h1>
+    <button onclick="iniciarJogo()">Iniciar Jogo</button>
+  </div>
+  <div id="game-area" style="opacity: 0; transition: opacity 1s ease;">
+    <div id="personagem"></div>
+    <div id="npc">
+      <div id="fala-npc">👋</div>
+      <div id="npc-hint">Pressione F para falar</div>
+    </div>
+    <div id="obstaculo"></div>
+    <div id="pontuacao">Pontos: <span id="pontos">0</span></div>
+    <div id="fase-indicador">Fase: <span id="fase">1</span></div>
+    <div id="cronometro">Tempo: <span id="tempo">60</span>s</div>
+    <div id="transicao-fase"></div>
+    <audio id="som-transicao" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_1fbb34f7b4.mp3?filename=transition-visual-effect-6111.mp3"></audio>
+  </div>
+  <script>
+    const menu = document.getElementById('menu');
+    const gameArea = document.getElementById('game-area');
+    const personagem = document.getElementById('personagem');
+    const falaNpc = document.getElementById('fala-npc');
+    const npcHint = document.getElementById('npc-hint');
+    const obstaculo = document.getElementById('obstaculo');
+    const pontosEl = document.getElementById('pontos');
+    const faseEl = document.getElementById('fase');
+    const tempoEl = document.getElementById('tempo');
+    const somTransicao = document.getElementById('som-transicao');
+    const transicaoFase = document.getElementById('transicao-fase');
+
+    let falouComNpc = false;
+    let x = 200, y = 260, passo = 20;
+    let pontos = 0;
+    let faseAtual = 0;
+    let tempo = 60;
+    let cronometro;
+
+    const fases = [
+      { fundo: '#e0f7fa', corObstaculo: '#5d4037', fala: 'Bem-vindo ao desafio 1!' },
+      { fundo: '#fff3e0', corObstaculo: '#d84315', fala: 'Prepare-se para a fase 2!' },
+      { fundo: '#f3e5f5', corObstaculo: '#6a1b9a', fala: 'Você está indo bem na fase 3!' },
+      { fundo: '#ede7f6', corObstaculo: '#4527a0', fala: 'Quase lá na fase 4!' },
+      { fundo: '#e8f5e9', corObstaculo: '#2e7d32', fala: 'Última fase! Boa sorte!' }
+    ];
+
+    function iniciarJogo() {
+  menu.style.transition = 'opacity 1s ease';
+  menu.style.opacity = '0';
+  setTimeout(() => {
+    menu.style.display = 'none';
+    gameArea.style.display = 'block';
+    setTimeout(() => { gameArea.style.opacity = '1'; }, 50);
+    aplicarFase(faseAtual);
+    mostrarFalaDigitada('Olá, herói! Use as setas para se mover. Encontre o obstáculo e resolva o sistema para avançar! Pressione F para falar comigo.');
+    setTimeout(() => iniciarContador(), 7000);
+  }, 1000);
+}
+
+    function aplicarFase(fase) {
+      const config = fases[fase % fases.length];
+      transicaoFase.style.clipPath = 'circle(150% at center)';
+      setTimeout(() => {
+        document.body.style.backgroundColor = config.fundo;
+        obstaculo.style.backgroundColor = config.corObstaculo;
+        faseEl.textContent = (fase % fases.length) + 1;
+        // mostrarFalaDigitada(config.fala); // Removido para não falar automaticamente
+        transicaoFase.style.clipPath = 'circle(0% at center)';
+        tempo = 60;
+        atualizarTempo();
+      }, 500);
+    }
+
+    function iniciarContador() {
+      cronometro = setInterval(() => {
+        tempo--;
+        atualizarTempo();
+        if (tempo <= 0) {
+          clearInterval(cronometro);
+          alert('Tempo esgotado!');
+          location.reload();
+        }
+      }, 1000);
+    }
+
+    function atualizarTempo() {
+      tempoEl.textContent = tempo;
+    }
+
+    function mostrarFalaDigitada(texto) {
+      falaNpc.textContent = "";
+      falaNpc.style.display = "block";
+      let i = 0;
+      const interval = setInterval(() => {
+        falaNpc.textContent += texto[i];
+        i++;
+        if (i >= texto.length) {
+          clearInterval(interval);
+          setTimeout(() => {
+            falaNpc.style.display = "none";
+          }, 2500);
+        }
+      }, 40);
+    }
+
+    function detectarColisao() {
+  const r1 = personagem.getBoundingClientRect();
+  const r2 = obstaculo.getBoundingClientRect();
+  return !(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom);
+}
+
+    document.addEventListener("keydown", function(event) {
+      if (event.key.toLowerCase() === 'f') {
+  if (!falouComNpc) {
+    falouComNpc = true;
+    npcHint.style.display = 'none';
+  }
+  const dicasFaseadas = [
+  [
+    'Continue em frente! Supere os obstáculos e resolva os sistemas para vencer.',
+    'Use as teclas direcionais para explorar o mapa.',
+    'Evite perder tempo, o cronômetro está correndo!'
+  ],
+  [
+    'Dica da fase 2: observe o número de variáveis em cada equação.',
+    'Você pode somar ou subtrair equações para eliminar uma variável.',
+    'Equações simples ajudam na dedução: tente reorganizar!'
+  ],
+  [
+    'Dica da fase 3: tente isolar uma variável para facilitar a substituição.',
+    'Às vezes trocar a ordem das equações ajuda.',
+    'Não se esqueça de verificar suas contas básicas!'
+  ],
+  [
+    'Dica da fase 4: eliminar uma variável pode simplificar bastante o sistema.',
+    'Multiplique uma equação se precisar igualar os coeficientes.',
+    'A substituição ainda é útil, tente de novo!'
+  ],
+  [
+    'Dica final: revisar os passos anteriores pode te ajudar a corrigir erros.',
+    'A solução correta precisa satisfazer ambas as equações.',
+    'Leia com atenção: às vezes o erro está no sinal!'
+  ]
+];
+  const dicasDaFase = dicasFaseadas[faseAtual % dicasFaseadas.length];
+  const dicaAleatoria = dicasDaFase[Math.floor(Math.random() * dicasDaFase.length)];
+  mostrarFalaDigitada(dicaAleatoria);
+        // removido: dicasRelacionadas agora fazem parte de cada desafio
+      }
+      if (event.key === "ArrowUp") y -= passo;
+      else if (event.key === "ArrowDown") y += passo;
+      else if (event.key === "ArrowLeft") x -= passo;
+      else if (event.key === "ArrowRight") x += passo;
+      personagem.style.left = x + "px";
+      personagem.style.top = y + "px";
+
+      if (detectarColisao()) {
+  clearInterval(cronometro);
+  const desafios = [
+  {
+    pergunta: `2x + 3y = 12
+4x - y = 5`,
+    resposta: '3,2',
+    dica: 'Dica: multiplique a segunda equação por 3 para eliminar y com a primeira.',
+    explicacao: 'Multiplicando a segunda equação por 3: 12x - 3y = 15. Somando com a primeira: 2x + 3y = 12 resulta em 14x = 27, então x = 3, y = 2.'
+  },
+  {
+    pergunta: `x + y = 10
+x - y = 4`,
+    resposta: '7,3',
+    dica: 'Dica: some as duas equações para encontrar x diretamente.',
+    explicacao: 'Somando as equações: 2x = 14, x = 7. Substituindo: 7 + y = 10, y = 3.'
+  },
+  {
+    pergunta: `3x + 2y = 12
+2x - y = 1`,
+    resposta: '2,3',
+    dica: 'Dica: isole y na segunda equação e substitua na primeira.',
+    explicacao: 'Da segunda: y = 2x - 1. Substituindo na primeira: 3x + 2(2x - 1) = 12 → 3x + 4x - 2 = 12 → 7x = 14 → x = 2, y = 3.'
+  },
+  {
+    pergunta: `x + 2y = 8
+3x - y = 5`,
+    resposta: '3,2.5',
+    dica: 'Dica: multiplique a segunda equação para igualar os y e somar.',
+    explicacao: 'Da primeira: x = 8 - 2y. Substituindo na segunda: 3(8 - 2y) - y = 5 → 24 - 6y - y = 5 → 7y = 19 → y = 2.5, x = 3.'
+  },
+  {
+    pergunta: `2x + y = 7
+4x - 2y = 6`,
+    resposta: '2,3',
+    dica: 'Dica: multiplique a primeira equação por 2 para eliminar y.',
+    explicacao: 'Multiplicando a primeira: 4x + 2y = 14. Somando com a segunda: 4x - 2y = 6 → 8x = 20 → x = 2. Substituindo: 2x + y = 7 → 4 + y = 7 → y = 3.'
+  }
+];
+  const desafio = desafios[Math.floor(Math.random() * desafios.length)];
+  const resposta = prompt(`Resolva o sistema:
+${desafio.pergunta}
+Digite o valor de x e y separados por vírgula (ex: 2,1):`);
+  if (resposta && resposta.trim() === desafio.resposta) {
+    alert(`Correto!
+${desafio.explicacao}`);
+    pontos++;
+    pontosEl.textContent = pontos;
+    faseAtual++;
+    aplicarFase(faseAtual);
+    obstaculo.style.left = Math.floor(Math.random() * 500) + "px";
+    obstaculo.style.top = Math.floor(Math.random() * 400 + 100) + "px";
+    somTransicao.play();
+    iniciarContador();
+  } else {
+    alert(`Resposta incorreta! Tente novamente.
+${desafio.dica}`);
+    // removido pois dica agora vem do sistema relacionado
+    iniciarContador();
+  }
+}
+    });
+  </script>
+</body>
+</html>
