@@ -69,24 +69,68 @@
       opacity: 0;
       transition: opacity 1s ease;
     }
-    #personagem, #npc, #obstaculo {
+    #game-area {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: none;
+      opacity: 0;
+      transition: opacity 1s ease;
+      background-image: url('assets/aldeia.png'); /* Updated path */
+      background-size: cover;
+      background-position: center center;
+    }
+    #personagem, #npc { /* Removed #obstaculo from this group */
       position: absolute;
       width: 50px;
       height: 50px;
       border-radius: 12px;
-      border: 2px solid #fff;
+      border: 2px solid #fff; /* Keep border for visibility or adjust as needed */
+    }
+    .portal-desafio { /* New CSS class for portals */
+      position: absolute;
+      width: 50px; 
+      height: 50px; 
+      background-color: rgba(255, 223, 186, 0.7); /* Light, somewhat transparent parchment/gold */
+      border: 2px dashed #6b4c11; /* Wooden-like dashed border */
+      border-radius: 10px; 
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.8); /* Gold glow */
+      cursor: help; 
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: none; /* Initially hidden */
+    }
+    .portal-desafio:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 25px rgba(255, 215, 0, 1);
+    }
+    .portal-desafio.active-portal {
+      box-shadow: 0 0 25px rgba(255, 255, 100, 1), 0 0 35px rgba(255, 223, 0, 0.7); /* Brighter, more prominent glow */
+      animation: pulseGlow 1.5s infinite alternate;
+    }
+
+    @keyframes pulseGlow {
+      from {
+        box-shadow: 0 0 25px rgba(255, 255, 100, 0.9), 0 0 35px rgba(255, 223, 0, 0.6);
+      }
+      to {
+        box-shadow: 0 0 35px rgba(255, 255, 150, 1), 0 0 45px rgba(255, 223, 0, 0.8);
+      }
     }
     #personagem {
-      background-image: url('https://cdn-icons-png.flaticon.com/512/706/706830.png');
-      background-size: cover;
+      background-image: url('assets/persoganem_principal.png'); /* Updated path */
+      background-size: cover; /* Or 'contain' if aspect ratio is an issue */
+      background-position: center;
       top: 260px;
       left: 100px;
+      /* border: none; /* Optional: remove border if icon has good transparency */
     }
     #npc {
-      background-image: url('https://cdn-icons-png.flaticon.com/512/4140/4140048.png');
-      background-size: cover;
+      background-image: url('assets/npc_idosa.png'); /* Updated path */
+      background-size: cover; /* Or 'contain' */
+      background-position: center;
       top: 200px;
       left: 200px;
+      /* border: none; /* Optional */
     }
     #fala-npc {
       display: none;
@@ -94,13 +138,13 @@
       top: -90px;
       left: 50%;
       transform: translateX(-50%);
-      background: white;
+      background: #f9f1e7; /* Parchment */
       padding: 10px 14px;
-      border: 2px solid #1a237e;
+      border: 2px solid #6b4c11; /* Dark brown/wood */
       border-radius: 8px;
       font-size: 14px;
       font-weight: 600;
-      color: #1a237e;
+      color: #3a2f1c; /* Dark brown text */
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
       max-width: 240px;
       width: max-content;
@@ -144,6 +188,68 @@
     #pontuacao { left: 10px; }
     #fase-indicador { right: 10px; }
     #cronometro { left: 50%; transform: translateX(-50%); }
+
+    /* Modal Styling */
+    #custom-modal, #custom-prompt-modal {
+      position: fixed;
+      z-index: 3000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.7);
+      display: none; /* Initially hidden */
+      justify-content: center;
+      align-items: center;
+    }
+    #modal-content, #prompt-modal-content {
+      background-color: #f9f1e7; /* Light parchment color */
+      color: #3a2f1c; /* Dark brown text */
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      text-align: center;
+      border: 3px solid #6b4c11; /* Wooden-like border */
+      font-family: 'Cinzel', serif; /* Medieval font */
+      max-width: 500px;
+    }
+    #modal-content p, #prompt-modal-content p { /* Ensure paragraphs within modals also use Cinzel */
+      font-family: 'Cinzel', serif;
+    }
+    #modal-close-button, #prompt-modal-submit-button, #prompt-modal-cancel-button {
+      background: linear-gradient(45deg, #6b4c11, #a98307);
+      border: 2px solid #d9c686;
+      padding: 10px 20px;
+      font-size: 18px;
+      color: #f9f1e7;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 10px;
+      font-family: 'Cinzel', serif;
+    }
+    #prompt-modal-input {
+      padding: 10px;
+      font-size: 16px;
+      border: 2px solid #6b4c11;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      width: 80%;
+      font-family: 'Cinzel', serif; /* Ensure Cinzel for input */
+    }
+    #pontuacao, #fase-indicador, #cronometro {
+      font-family: 'Cinzel', serif; /* Apply Cinzel to UI elements */
+    }
+    #npc-hint {
+      font-family: 'Cinzel', serif; /* Apply Cinzel to NPC hint */
+      background: #fff8e1; /* Existing - light parchment */
+      color: #3a2f1c; /* Darker text for better contrast on light parchment */
+      border: 1px solid #6b4c11; /* Consistent border */
+    }
+    .heart-icon {
+      color: red;
+      font-size: 24px; /* Adjust as needed */
+      margin-left: 5px; /* Example spacing if used inline */
+    }
   </style>
 </head>
 <body>
@@ -157,17 +263,39 @@
       <div id="fala-npc">👋</div>
       <div id="npc-hint">Pressione F para falar</div>
     </div>
-    <div id="obstaculo"></div>
+    <!-- <div id="obstaculo"></div> --> <!-- Removed static obstacle -->
     <div id="pontuacao">Pontos: <span id="pontos">0</span></div>
     <div id="fase-indicador">Fase: <span id="fase">1</span></div>
     <div id="cronometro">Tempo: <span id="tempo">60</span>s</div>
     <div id="transicao-fase"></div>
     <audio id="som-transicao" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_1fbb34f7b4.mp3?filename=transition-visual-effect-6111.mp3"></audio>
   </div>
+
+  <!-- Custom Modal for Alerts -->
+  <div id="custom-modal">
+    <div id="modal-content">
+      <p id="modal-message"></p>
+      <button id="modal-close-button">Fechar</button>
+    </div>
+  </div>
+
+  <!-- Custom Modal for Prompts -->
+  <div id="custom-prompt-modal">
+    <div id="prompt-modal-content">
+      <p id="prompt-modal-question"></p>
+      <div id="vidas-display" style="margin-top: 10px; margin-bottom: 15px;"></div> <!-- Added style directly for simplicity -->
+      <input type="text" id="prompt-modal-input">
+      <button id="prompt-modal-submit-button">Enviar</button>
+      <button id="prompt-modal-cancel-button">Cancelar</button>
+    </div>
+  </div>
+
   <script>
+    // --- DOM ELEMENT REFERENCES ---
     const menu = document.getElementById('menu');
     const gameArea = document.getElementById('game-area');
     const personagem = document.getElementById('personagem');
+    const npc = document.getElementById('npc'); // Added for completeness, though not directly used in existing functions
     const falaNpc = document.getElementById('fala-npc');
     const npcHint = document.getElementById('npc-hint');
     const obstaculo = document.getElementById('obstaculo');
@@ -177,12 +305,33 @@
     const somTransicao = document.getElementById('som-transicao');
     const transicaoFase = document.getElementById('transicao-fase');
 
-    let falouComNpc = false;
-    let x = 200, y = 260, passo = 20;
+    // Modal elements
+    const customModal = document.getElementById('custom-modal');
+    const modalMessage = document.getElementById('modal-message');
+    const modalCloseButton = document.getElementById('modal-close-button');
+    const customPromptModal = document.getElementById('custom-prompt-modal');
+    const promptModalQuestion = document.getElementById('prompt-modal-question');
+    const promptModalInput = document.getElementById('prompt-modal-input');
+    const promptModalSubmitButton = document.getElementById('prompt-modal-submit-button');
+    const promptModalCancelButton = document.getElementById('prompt-modal-cancel-button');
+
+    // --- GLOBAL VARIABLES ---
+    // --- GAME CORE LOGIC & STATE ---
+    let locaisAldeia = [];
+    let portalAtual = null;
+    let proximoLocalIndex = 0; 
     let pontos = 0;
     let faseAtual = 0;
     let tempo = 60;
     let cronometro;
+    let x = 200, y = 260, passo = 20; // Character position and step
+    let vidasJogador;
+    const VIDAS_INICIAIS = 3;
+
+
+    // --- NPC & DIALOGUE LOGIC ---
+    let falouComNpc = false;
+    let promptCallback = null; // To store the callback for the prompt (related to modal, but driven by NPC/Challenge interaction)
 
     const fases = [
       { fundo: '#e0f7fa', corObstaculo: '#5d4037', fala: 'Bem-vindo ao desafio 1!' },
@@ -192,41 +341,212 @@
       { fundo: '#e8f5e9', corObstaculo: '#2e7d32', fala: 'Última fase! Boa sorte!' }
     ];
 
-    function iniciarJogo() {
-  menu.style.transition = 'opacity 1s ease';
-  menu.style.opacity = '0';
-  setTimeout(() => {
-    menu.style.display = 'none';
-    gameArea.style.display = 'block';
-    setTimeout(() => { gameArea.style.opacity = '1'; }, 50);
-    aplicarFase(faseAtual);
-    mostrarFalaDigitada('Olá, herói! Use as setas para se mover. Encontre o obstáculo e resolva o sistema para avançar! Pressione F para falar comigo.');
-    setTimeout(() => iniciarContador(), 7000);
-  }, 1000);
-}
+    const dicasFaseadas = [ // Moved here as it's primarily NPC dialogue content
+      [
+        'Continue em frente! Supere os obstáculos e resolva os sistemas para vencer.',
+        'Use as teclas direcionais para explorar o mapa.',
+        'Evite perder tempo, o cronômetro está correndo!',
+        'Desafios com vetores podem surgir, lembre-se de suas propriedades!' // New Hint
+      ],
+      [
+        'Dica da fase 2: observe o número de variáveis em cada equação.',
+        'Você pode somar ou subtrair equações para eliminar uma variável.',
+        'Equações simples ajudam na dedução: tente reorganizar!',
+        'Matrizes? Some ou multiplique com atenção!' // New Hint
+      ],
+      [
+        'Dica da fase 3: tente isolar uma variável para facilitar a substituição.',
+        'Às vezes trocar a ordem das equações ajuda.',
+        'Não se esqueça de verificar suas contas básicas!',
+        'Transformações lineares podem parecer complexas, mas siga a definição.' // New Hint
+      ],
+      [
+        'Dica da fase 4: eliminar uma variável pode simplificar bastante o sistema.',
+        'Multiplique uma equação se precisar igualar os coeficientes.',
+        'A substituição ainda é útil, tente de novo!',
+        'Às vezes, um desafio vetorial é apenas uma questão de aplicar a fórmula correta.'
+      ],
+      [
+        'Dica final: revisar os passos anteriores pode te ajudar a corrigir erros.',
+        'A solução correta precisa satisfazer ambas as equações.',
+        'Leia com atenção: às vezes o erro está no sinal!',
+        'Dominar as matrizes abre muitos portais!'
+      ]
+    ];
 
-    function aplicarFase(fase) {
-      const config = fases[fase % fases.length];
+    // --- MODAL LOGIC ---
+    function atualizarExibicaoVidas() {
+      const vidasDisplay = document.getElementById('vidas-display');
+      if (!vidasDisplay) return; // Should not happen if HTML is correct
+      vidasDisplay.innerHTML = ''; // Clear previous hearts
+
+      if (vidasJogador <= 0) {
+        vidasDisplay.textContent = 'Vidas: 0';
+      } else {
+        for (let i = 0; i < vidasJogador; i++) {
+          const heartSpan = document.createElement('span');
+          heartSpan.className = 'heart-icon';
+          heartSpan.textContent = '❤️';
+          vidasDisplay.appendChild(heartSpan);
+        }
+      }
+    }
+    
+    function showCustomAlert(message, callback) { // Added callback parameter
+      modalMessage.textContent = message;
+      customModal.style.display = 'flex';
+      // Store callback to be called when modal is closed
+      customModal.onCloseCallback = callback; 
+    }
+
+    function closeCustomAlert() {
+      customModal.style.display = 'none';
+      if (typeof customModal.onCloseCallback === 'function') {
+        customModal.onCloseCallback();
+        customModal.onCloseCallback = null; // Clear callback after execution
+      }
+    }
+
+    function showCustomPrompt(question, callback) {
+      promptCallback = callback;
+      promptModalQuestion.textContent = question;
+      promptModalInput.value = ''; // Clear previous input
+      atualizarExibicaoVidas(); // Update lives display when prompt is shown
+      customPromptModal.style.display = 'flex';
+      promptModalInput.focus(); // Focus on the input field
+    }
+
+    function submitCustomPrompt() {
+      const value = promptModalInput.value;
+      customPromptModal.style.display = 'none';
+      if (promptCallback) {
+        promptCallback(value);
+      }
+    }
+
+    function cancelCustomPrompt() {
+      customPromptModal.style.display = 'none';
+      if (promptCallback) {
+        promptCallback(null); // Indicate cancellation
+      }
+    }
+
+    // --- GAME CORE LOGIC & STATE --- (Continued)
+    function activatePortal(local) {
+      if (!local || !local.portalElement) {
+        console.error("Tentativa de ativar local inválido ou sem portalElement:", local);
+        return;
+      }
+
+      if (portalAtual && portalAtual.portalElement) {
+        portalAtual.portalElement.style.display = 'none'; 
+        portalAtual.portalElement.classList.remove('active-portal');
+      }
+      
+      local.portalElement.style.display = 'block';
+      local.portalElement.classList.add('active-portal');
+      
+      // Assign a new challenge to this location each time it's activated by NPC
+      local.desafioAtual = desafios[Math.floor(Math.random() * desafios.length)];
+      local.concluido = false; // Explicitly mark as not completed for this new activation/challenge
+      portalAtual = local; 
+    }
+
+    function iniciarJogo() {
+      vidasJogador = VIDAS_INICIAIS;
+      
+      locaisAldeia = [
+        { id: 'taverna', nome: 'a Taverna do Javali Caolho', coords: { x: 150, y: 450 }, desafioAtual: null, concluido: false, portalElement: null }, 
+        { id: 'ferraria', nome: 'a Ferraria Punho de Ferro', coords: { x: 400, y: 150 }, desafioAtual: null, concluido: false, portalElement: null },
+        { id: 'mercado', nome: 'o Mercado Central', coords: { x: 350, y: 350 }, desafioAtual: null, concluido: false, portalElement: null }, 
+        { id: 'biblioteca', nome: 'a Biblioteca Antiga', coords: { x: 600, y: 200 }, desafioAtual: null, concluido: false, portalElement: null } 
+      ];
+
+      // Create portal elements dynamically
+      const gameAreaDiv = document.getElementById('game-area'); // Get game-area div
+      locaisAldeia.forEach(local => {
+        const portalDiv = document.createElement('div');
+        portalDiv.id = 'portal-' + local.id;
+        portalDiv.classList.add('portal-desafio');
+        portalDiv.style.left = local.coords.x + 'px';
+        portalDiv.style.top = local.coords.y + 'px';
+        // portalDiv.textContent = local.id[0]; // Optional: for debugging visibility
+        gameAreaDiv.appendChild(portalDiv); // Append to game-area
+        local.portalElement = portalDiv; // Store reference
+      });
+      
+      // Placeholder: Activate the first portal for testing
+      // This will be replaced by NPC interaction logic in the next step
+      // if (locaisAldeia.length > 0) {
+      //   activatePortal(locaisAldeia[0]); 
+      // }
+
+      // atualizarExibicaoVidas(); // Will be called by showCustomPrompt first time
+      menu.style.transition = 'opacity 1s ease';
+      menu.style.opacity = '0';
+      setTimeout(() => {
+        menu.style.display = 'none';
+        gameArea.style.display = 'block';
+        setTimeout(() => { gameArea.style.opacity = '1'; }, 50); // Ensure opacity transition
+        aplicarFase(faseAtual); // faseAtual is 0 initially
+        // Obstacle is already placed by default CSS, first challenge will be random
+        mostrarFalaDigitada("Olá, herói! Fale comigo (pressione 'F') para receber sua primeira missão e proteger nossos portais!");
+        // Timer will start when first challenge prompt is closed or solved.
+      }, 1000);
+    }
+
+    function aplicarFase(fase) { // This function might need re-evaluation with fixed portals
+      const config = fases[fase % fases.length]; // Current phase color logic, might be kept for body background
       transicaoFase.style.clipPath = 'circle(150% at center)';
       setTimeout(() => {
         document.body.style.backgroundColor = config.fundo;
-        obstaculo.style.backgroundColor = config.corObstaculo;
-        faseEl.textContent = (fase % fases.length) + 1;
-        // mostrarFalaDigitada(config.fala); // Removido para não falar automaticamente
+        // obstaculo.style.backgroundColor = config.corObstaculo; // #obstaculo is removed
+        faseEl.textContent = (fase % fases.length) + 1; // Phase indicator still relevant
         transicaoFase.style.clipPath = 'circle(0% at center)';
-        tempo = 60;
+        tempo = 60; // Reset timer for new phase
         atualizarTempo();
-      }, 500);
+      }, 500); // Duration of transition animation
+    }
+
+    function retryCurrentChallenge() {
+        if (portalAtual && portalAtual.desafioAtual) {
+            // Simply call apresentarDesafio again for the current portal.
+            // It will use portalAtual.desafioAtual and will reset the timer.
+            apresentarDesafio(portalAtual.desafioAtual, portalAtual.nome);
+        } else {
+            // If no current portal/challenge, perhaps just go back to game or show generic message
+            console.warn("RetryCurrentChallenge chamado sem portalAtual ou desafioAtual válido.");
+        }
     }
 
     function iniciarContador() {
+      clearInterval(cronometro); // Clear any existing timer
       cronometro = setInterval(() => {
         tempo--;
         atualizarTempo();
         if (tempo <= 0) {
           clearInterval(cronometro);
-          alert('Tempo esgotado!');
-          location.reload();
+          vidasJogador--;
+          atualizarExibicaoVidas();
+          // isModalOpen = true; // This is implicitly handled by showCustomAlert
+
+          if (vidasJogador <= 0) {
+            showCustomAlert("Fim de Jogo! O tempo esgotou na sua última vida. O portal repele você...", () => { 
+              location.reload(); 
+            });
+          } else {
+            // portalAtual should still be defined here, as should its desafioAtual
+            if (portalAtual && portalAtual.desafioAtual) {
+                showCustomAlert(`Tempo Esgotado! Você perdeu uma vida. Tente este desafio novamente.\n${portalAtual.desafioAtual.dica}`, () => {
+                    retryCurrentChallenge();
+                });
+            } else {
+                // Fallback if something is wrong with portalAtual state
+                showCustomAlert("Tempo Esgotado! Você perdeu uma vida.", () => {
+                    // Potentially guide back to NPC or just close modal
+                });
+            }
+          }
         }
       }, 1000);
     }
@@ -235,135 +555,357 @@
       tempoEl.textContent = tempo;
     }
 
+    // --- NPC & DIALOGUE LOGIC --- (Continued)
     function mostrarFalaDigitada(texto) {
-      falaNpc.textContent = "";
+      falaNpc.textContent = ""; // Clear previous text
       falaNpc.style.display = "block";
       let i = 0;
       const interval = setInterval(() => {
-        falaNpc.textContent += texto[i];
-        i++;
-        if (i >= texto.length) {
+        if (i < texto.length) {
+          falaNpc.textContent += texto[i];
+          i++;
+        } else {
           clearInterval(interval);
           setTimeout(() => {
             falaNpc.style.display = "none";
-          }, 2500);
+          }, 2500); // Message display duration
         }
-      }, 40);
+      }, 40); // Typing speed
     }
 
-    function detectarColisao() {
-  const r1 = personagem.getBoundingClientRect();
-  const r2 = obstaculo.getBoundingClientRect();
-  return !(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom);
-}
+    // --- CHARACTER MOVEMENT & COLLISION ---
+    function detectarColisao(el1, el2) { // Made generic for potential other collision detections
+      const r1 = el1.getBoundingClientRect();
+      const r2 = el2.getBoundingClientRect();
+      return !(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom);
+    }
+
+    // --- CHALLENGE HANDLING LOGIC ---
+    const desafios = [
+      {
+        type: 'linear_system',
+        pergunta: `2x + 3y = 12\n4x - y = 5`, // Keep for now
+        text: `Resolva o sistema:\n2x + 3y = 12\n4x - y = 5`, // New generic field
+        resposta: '3,2',
+        dica: 'Dica: multiplique a segunda equação por 3 para eliminar y com a primeira.',
+        explicacao: 'Multiplicando a segunda equação por 3: 12x - 3y = 15. Somando com a primeira: 2x + 3y = 12 resulta em 14x = 27, então x = 3, y = 2.'
+      },
+      {
+        type: 'linear_system',
+        pergunta: `x + y = 10\nx - y = 4`,
+        text: `Resolva o sistema:\nx + y = 10\nx - y = 4`,
+        resposta: '7,3',
+        dica: 'Dica: some as duas equações para encontrar x diretamente.',
+        explicacao: 'Somando as equações: 2x = 14, x = 7. Substituindo: 7 + y = 10, y = 3.'
+      },
+      {
+        type: 'linear_system',
+        pergunta: `3x + 2y = 12\n2x - y = 1`,
+        text: `Resolva o sistema:\n3x + 2y = 12\n2x - y = 1`,
+        resposta: '2,3',
+        dica: 'Dica: isole y na segunda equação e substitua na primeira.',
+        explicacao: 'Da segunda: y = 2x - 1. Substituindo na primeira: 3x + 2(2x - 1) = 12 → 3x + 4x - 2 = 12 → 7x = 14 → x = 2, y = 3.'
+      },
+      {
+        type: 'linear_system',
+        pergunta: `x + 2y = 8\n3x - y = 5`,
+        text: `Resolva o sistema:\nx + 2y = 8\n3x - y = 5`,
+        resposta: '3,2.5',
+        dica: 'Dica: multiplique a segunda equação para igualar os y e somar.',
+        explicacao: 'Da primeira: x = 8 - 2y. Substituindo na segunda: 3(8 - 2y) - y = 5 → 24 - 6y - y = 5 → 7y = 19 → y = 2.5, x = 3.'
+      },
+      {
+        type: 'linear_system',
+        pergunta: `2x + y = 7\n4x - 2y = 6`,
+        text: `Resolva o sistema:\n2x + y = 7\n4x - 2y = 6`,
+        resposta: '2,3',
+        dica: 'Dica: multiplique a primeira equação por 2 para eliminar y.',
+        explicacao: 'Multiplicando a primeira: 4x + 2y = 14. Somando com a segunda: 4x - 2y = 6 → 8x = 20 → x = 2. Substituindo: 2x + y = 7 → 4 + y = 7 → y = 3.'
+      },
+      // --- New Challenge Types ---
+      {
+        type: 'vector_sum',
+        text: 'Calcule a soma dos vetores v = [1, 2, 3] e u = [4, 5, 6].\nResponda no formato: [x,y,z]',
+        pergunta: 'Calcule a soma dos vetores v = [1, 2, 3] e u = [4, 5, 6].', // Keeping for potential backward compatibility or specific parsing
+        resposta: '[5,7,9]',
+        dica: 'Some os componentes correspondentes de cada vetor.',
+        explicacao: 'A soma de vetores é (v1+u1, v2+u2, v3+u3). Então, (1+4, 2+5, 3+6) = (5, 7, 9).'
+      },
+      {
+        type: 'matrix_sum',
+        text: 'Calcule a soma das matrizes A = [[1, 2], [3, 4]] e B = [[5, 6], [7, 8]].\nResponda no formato: [[a,b],[c,d]]',
+        pergunta: 'Calcule a soma das matrizes A = [[1, 2], [3, 4]] e B = [[5, 6], [7, 8]].',
+        resposta: '[[6,8],[10,12]]',
+        dica: 'Some os elementos correspondentes de cada matriz.',
+        explicacao: 'A soma de matrizes é [[A11+B11, A12+B12], [A21+B21, A22+B22]]. Então, [[1+5, 2+6], [3+7, 4+8]] = [[6, 8], [10, 12]].'
+      },
+      {
+        type: 'linear_transformation_2d',
+        text: 'Aplique a transformação linear T(x, y) = (2x + y, x - y) ao vetor v = [3, 2].\nResponda no formato: [x\',y\']',
+        pergunta: 'Aplique a transformação linear T(x, y) = (2x + y, x - y) ao vetor v = [3, 2].',
+        resposta: '[8,1]',
+        dica: 'Substitua x e y do vetor v na definição da transformação T.',
+        explicacao: 'T(3, 2) = (2*3 + 2, 3 - 2) = (6 + 2, 1) = (8, 1).'
+      }
+    ];
+
+    function apresentarDesafio(challenge, localNome) { // Added challenge and localNome parameters
+      clearInterval(cronometro); 
+
+      if (!challenge) { // Use the passed challenge object
+        console.error("Nenhum desafio fornecido para apresentar.");
+        return; 
+      }
+      // portalAtual is still used for context like marking as 'concluido'
+      if (!portalAtual) {
+        console.error("Nenhum portalAtual definido ao apresentar desafio.");
+        return;
+      }
+
+      let promptText = challenge.text;
+      if (challenge.type === 'linear_system') {
+        promptText += '\nDigite o valor de x e y separados por vírgula (ex: 2,1):';
+      }
+
+      showCustomPrompt(promptText, function(resposta) {
+        if (resposta && resposta.trim().toLowerCase() === challenge.resposta.toLowerCase()) { 
+          showCustomAlert(`Correto! Portal em ${localNome} selado!\n${challenge.explicacao}\n\nVolte a falar comigo para sua próxima tarefa.`, () => {
+            pontos++;
+            pontosEl.textContent = pontos;
+            // faseAtual++; // Not directly tied to individual portal completions anymore
+            // aplicarFase(faseAtual); // Phase changes might be different now
+            
+            portalAtual.concluido = true;
+            portalAtual.portalElement.classList.remove('active-portal'); // Remove active class
+            portalAtual.portalElement.style.display = 'none'; // Hide completed portal
+            // somTransicao.play(); // Optional: sound for portal completion
+            
+            let allDone = locaisAldeia.every(l => l.concluido);
+            // portalAtual = null; // Will be set to null by NPC logic or if all done.
+            
+            if (allDone) {
+                showCustomAlert("Parabéns! Você selou todos os portais e salvou a aldeia!");
+                // portalAtual = null; // Ensure no further interaction with this portal. Redundant if NPC sets it.
+                // No timer restart, game effectively paused until reload or new mechanism
+            } else {
+                // NPC will guide to next portal. For now, player needs to find NPC.
+                // iniciarContador(); // Timer should not auto-start; wait for next portal activation
+            }
+          });
+        } else if (resposta !== null) { 
+          vidasJogador--;
+          atualizarExibicaoVidas(); 
+
+          if (vidasJogador <= 0) {
+            clearInterval(cronometro); 
+            showCustomAlert("Fim de Jogo! Suas vidas acabaram. O portal repele você...", () => {
+              location.reload(); 
+            });
+          } else {
+            // Player loses a life. The challenge at this portal remains the SAME.
+              showCustomAlert(`Resposta incorreta... Você perdeu uma vida. Tente este desafio novamente.\n${challenge.dica}`, () => {
+                // Re-present the same challenge by calling showCustomPrompt again with the same challenge text
+                // The original prompt is now hidden by the alert.
+                // We need to re-show it for the SAME challenge.
+                // The callback from showCustomPrompt is what we are in now.
+                // So, we call showCustomPrompt again, it will set up its own callback.
+                // This means the original callback chain for this attempt ends here.
+                // A new one starts for the retry.
+                // The `promptText` variable already holds the correct text for the current challenge.
+                showCustomPrompt(promptText, arguments.callee); // arguments.callee refers to the current anonymous function (the callback itself)
+                                                                // This effectively re-wires the prompt for another attempt at the same challenge.
+                                                                // However, this can lead to deep recursion if not careful.
+                                                                // A cleaner way is to just re-display the prompt.
+                                                                // The current structure of showCustomPrompt is that it's called by apresentarDesafio.
+                                                                // Let's ensure the current prompt is re-shown correctly.
+                
+                // The simplest way to re-try the same challenge is to make sure the prompt modal
+                // is re-shown with the same question text, and timer restarts.
+                // The `showCustomPrompt` function already does this if called with the same question.
+                // The key is that `portalAtual.desafioAtual` (which is our `challenge` object here) has not changed.
+                // So, when this alert closes, the game expects the player to interact with the *same* portal.
+                // The next collision will call `apresentarDesafio` again with the *same* challenge.
+                // Or, if we want to immediately re-open the prompt:
+                promptModalQuestion.textContent = promptText; // Ensure question is still there
+                promptModalInput.value = ''; // Clear input
+                atualizarExibicaoVidas(); // Re-affirm lives display
+                customPromptModal.style.display = 'flex'; // Re-show prompt
+              promptModalInput.focus();
+              tempo = 60; 
+              atualizarTempo();
+              iniciarContador(); // Restart timer for the same challenge attempt
+            });
+          }
+        } else { // Prompt was cancelled
+            // If prompt is cancelled, player doesn't lose a life. Restart timer for current challenge.
+            // The portal and its challenge remain active.
+            iniciarContador(); 
+        }
+      });
+    }
+
+    // --- GAME INITIALIZATION & EVENT LISTENERS ---
+    modalCloseButton.addEventListener('click', closeCustomAlert);
+    promptModalSubmitButton.addEventListener('click', submitCustomPrompt);
+    promptModalCancelButton.addEventListener('click', cancelCustomPrompt);
+    promptModalInput.addEventListener('keypress', function(event) {
+      if (event.key === 'Enter') {
+        submitCustomPrompt();
+      }
+    });
 
     document.addEventListener("keydown", function(event) {
-      if (event.key.toLowerCase() === 'f') {
-  if (!falouComNpc) {
-    falouComNpc = true;
-    npcHint.style.display = 'none';
-  }
-  const dicasFaseadas = [
-  [
-    'Continue em frente! Supere os obstáculos e resolva os sistemas para vencer.',
-    'Use as teclas direcionais para explorar o mapa.',
-    'Evite perder tempo, o cronômetro está correndo!'
-  ],
-  [
-    'Dica da fase 2: observe o número de variáveis em cada equação.',
-    'Você pode somar ou subtrair equações para eliminar uma variável.',
-    'Equações simples ajudam na dedução: tente reorganizar!'
-  ],
-  [
-    'Dica da fase 3: tente isolar uma variável para facilitar a substituição.',
-    'Às vezes trocar a ordem das equações ajuda.',
-    'Não se esqueça de verificar suas contas básicas!'
-  ],
-  [
-    'Dica da fase 4: eliminar uma variável pode simplificar bastante o sistema.',
-    'Multiplique uma equação se precisar igualar os coeficientes.',
-    'A substituição ainda é útil, tente de novo!'
-  ],
-  [
-    'Dica final: revisar os passos anteriores pode te ajudar a corrigir erros.',
-    'A solução correta precisa satisfazer ambas as equações.',
-    'Leia com atenção: às vezes o erro está no sinal!'
-  ]
-];
-  const dicasDaFase = dicasFaseadas[faseAtual % dicasFaseadas.length];
-  const dicaAleatoria = dicasDaFase[Math.floor(Math.random() * dicasDaFase.length)];
-  mostrarFalaDigitada(dicaAleatoria);
-        // removido: dicasRelacionadas agora fazem parte de cada desafio
+      // Modal takes precedence for key events
+      if (customModal.style.display === 'flex' || customPromptModal.style.display === 'flex') {
+        if (event.key === 'Enter' && customPromptModal.style.display === 'flex' && document.activeElement === promptModalInput) {
+          // Already handled by promptModalInput listener, no need to submit again here.
+        } else if (event.key === 'Escape') {
+          if (customModal.style.display === 'flex') closeCustomAlert();
+          if (customPromptModal.style.display === 'flex') cancelCustomPrompt();
+        }
+        return; // Stop further processing if modal is open
       }
-      if (event.key === "ArrowUp") y -= passo;
-      else if (event.key === "ArrowDown") y += passo;
-      else if (event.key === "ArrowLeft") x -= passo;
-      else if (event.key === "ArrowRight") x += passo;
+
+      // NPC Interaction
+      if (event.key.toLowerCase() === 'f') {
+        if (!falouComNpc) { // First ever interaction
+          falouComNpc = true;
+          npcHint.style.display = 'none'; 
+        }
+
+        if (portalAtual == null || portalAtual.concluido) { // Player needs a new task
+          let localParaAtivar = null;
+          let todosConcluidos = true; // Assume all are done until proven otherwise
+
+          for (let i = 0; i < locaisAldeia.length; i++) {
+            let indice = (proximoLocalIndex + i) % locaisAldeia.length;
+            if (!locaisAldeia[indice].concluido) {
+              localParaAtivar = locaisAldeia[indice];
+              proximoLocalIndex = (indice + 1) % locaisAldeia.length;
+              todosConcluidos = false;
+              break;
+            }
+          }
+
+          if (localParaAtivar) {
+            activatePortal(localParaAtivar);
+            mostrarFalaDigitada(`Sinto uma perturbação perto de ${localParaAtivar.nome}. Vá até lá e feche o portal!`);
+          } else if (todosConcluidos) {
+            mostrarFalaDigitada("Você selou todos os portais, Guardião! A aldeia está segura graças a você. Descanse, por enquanto...");
+            // Consider disabling further 'F' interactions or other game end state
+          } else {
+            // This case should ideally not be reached if logic is correct (e.g. all concluded but todosConcluidos is false)
+            // but as a fallback:
+            mostrarFalaDigitada("Estou meditando sobre os portais... Volte em breve.");
+          }
+        } else { // Player has an active, uncompleted task
+            mostrarFalaDigitada(`O portal perto de ${portalAtual.nome} ainda está ativo. Concentre-se nesse desafio! Ou peça uma dica sobre o tipo de problema.`);
+            // Optionally, could add a sub-menu here to ask for specific type of hint vs general hint.
+            // For now, this message serves as a reminder.
+            // If you want to show dicasFaseadas as well:
+            // const dicasDaFase = dicasFaseadas[faseAtual % dicasFaseadas.length];
+            // const dicaAleatoria = dicasDaFase[Math.floor(Math.random() * dicasDaFase.length)];
+            // mostrarFalaDigitada(dicaAleatoria); // This would overwrite the specific task hint.
+        }
+      }
+
+      // Character Movement - Boundaries can be improved
+      const rect = gameArea.getBoundingClientRect();
+      const charRect = personagem.getBoundingClientRect();
+
+      if (event.key === "ArrowUp" && y > 0) y -= passo;
+      else if (event.key === "ArrowDown" && y < (rect.height - charRect.height)) y += passo;
+      else if (event.key === "ArrowLeft" && x > 0) x -= passo;
+      else if (event.key === "ArrowRight" && x < (rect.width - charRect.width)) x += passo;
+      
       personagem.style.left = x + "px";
       personagem.style.top = y + "px";
 
-      if (detectarColisao()) {
-  clearInterval(cronometro);
-  const desafios = [
-  {
-    pergunta: `2x + 3y = 12
-4x - y = 5`,
-    resposta: '3,2',
-    dica: 'Dica: multiplique a segunda equação por 3 para eliminar y com a primeira.',
-    explicacao: 'Multiplicando a segunda equação por 3: 12x - 3y = 15. Somando com a primeira: 2x + 3y = 12 resulta em 14x = 27, então x = 3, y = 2.'
-  },
-  {
-    pergunta: `x + y = 10
-x - y = 4`,
-    resposta: '7,3',
-    dica: 'Dica: some as duas equações para encontrar x diretamente.',
-    explicacao: 'Somando as equações: 2x = 14, x = 7. Substituindo: 7 + y = 10, y = 3.'
-  },
-  {
-    pergunta: `3x + 2y = 12
-2x - y = 1`,
-    resposta: '2,3',
-    dica: 'Dica: isole y na segunda equação e substitua na primeira.',
-    explicacao: 'Da segunda: y = 2x - 1. Substituindo na primeira: 3x + 2(2x - 1) = 12 → 3x + 4x - 2 = 12 → 7x = 14 → x = 2, y = 3.'
-  },
-  {
-    pergunta: `x + 2y = 8
-3x - y = 5`,
-    resposta: '3,2.5',
-    dica: 'Dica: multiplique a segunda equação para igualar os y e somar.',
-    explicacao: 'Da primeira: x = 8 - 2y. Substituindo na segunda: 3(8 - 2y) - y = 5 → 24 - 6y - y = 5 → 7y = 19 → y = 2.5, x = 3.'
-  },
-  {
-    pergunta: `2x + y = 7
-4x - 2y = 6`,
-    resposta: '2,3',
-    dica: 'Dica: multiplique a primeira equação por 2 para eliminar y.',
-    explicacao: 'Multiplicando a primeira: 4x + 2y = 14. Somando com a segunda: 4x - 2y = 6 → 8x = 20 → x = 2. Substituindo: 2x + y = 7 → 4 + y = 7 → y = 3.'
-  }
-];
-  const desafio = desafios[Math.floor(Math.random() * desafios.length)];
-  const resposta = prompt(`Resolva o sistema:
-${desafio.pergunta}
-Digite o valor de x e y separados por vírgula (ex: 2,1):`);
-  if (resposta && resposta.trim() === desafio.resposta) {
-    alert(`Correto!
-${desafio.explicacao}`);
-    pontos++;
-    pontosEl.textContent = pontos;
-    faseAtual++;
-    aplicarFase(faseAtual);
-    obstaculo.style.left = Math.floor(Math.random() * 500) + "px";
-    obstaculo.style.top = Math.floor(Math.random() * 400 + 100) + "px";
-    somTransicao.play();
-    iniciarContador();
-  } else {
-    alert(`Resposta incorreta! Tente novamente.
-${desafio.dica}`);
-    // removido pois dica agora vem do sistema relacionado
-    iniciarContador();
-  }
-}
+      // Collision with Portal
+      if (portalAtual && portalAtual.portalElement && portalAtual.portalElement.style.display === 'block' && !portalAtual.concluido) {
+        if (detectarColisao(personagem, portalAtual.portalElement)) {
+          // Ensure a challenge is assigned; activatePortal should handle this.
+          // If not, assign one as a fallback (though this indicates a potential logic flaw elsewhere).
+          if (!portalAtual.desafioAtual) { 
+            console.warn("Desafio não atribuído ao portal ativo. Atribuindo um aleatório como fallback.");
+            portalAtual.desafioAtual = desafios[Math.floor(Math.random() * desafios.length)];
+          }
+          apresentarDesafio(portalAtual.desafioAtual, portalAtual.nome); // Pass challenge object and localNome
+        }
+      }
     });
+
+    // Start the game (typically after all definitions)
+    // The menu button `iniciarJogo()` is the primary entry point now.
+
+    // --- UNIT TESTS (for console execution) ---
+    function areArraysEqual(arr1, arr2) {
+      if (!Array.isArray(arr1) || !Array.isArray(arr2) || arr1.length !== arr2.length) {
+        // Check if comparing a non-array value with an array, or if lengths differ
+        if (Array.isArray(arr1) !== Array.isArray(arr2)) return false; // One is array, other is not
+        return arr1 === arr2; // Handles non-array comparison like numbers or strings directly if both are non-arrays
+      }
+      for (let i = 0; i < arr1.length; i++) {
+        if (Array.isArray(arr1[i]) && Array.isArray(arr2[i])) {
+          if (!areArraysEqual(arr1[i], arr2[i])) return false;
+        } else if (arr1[i] !== arr2[i]) {
+          // Also check type if one is array and other is not at this level
+          if (Array.isArray(arr1[i]) !== Array.isArray(arr2[i])) return false;
+          return false;
+        }
+      }
+      return true;
+    }
+
+    function testVectorSum() {
+      console.log("--- Running Vector Sum Tests ---");
+      let v1 = [1, 2, 3]; let u1 = [4, 5, 6]; let expected1 = [5, 7, 9];
+      let actual1 = v1.map((val, index) => val + u1[index]);
+      console.assert(areArraysEqual(actual1, expected1), "Test Vector Sum 1 FAILED: Expected " + JSON.stringify(expected1) + ", Got " + JSON.stringify(actual1));
+
+      let v2 = [-1, 0, 5]; let u2 = [2, -3, -5]; let expected2 = [1, -3, 0];
+      let actual2 = v2.map((val, index) => val + u2[index]);
+      console.assert(areArraysEqual(actual2, expected2), "Test Vector Sum 2 FAILED: Expected " + JSON.stringify(expected2) + ", Got " + JSON.stringify(actual2));
+      
+      console.log("--- Vector Sum Tests Complete ---");
+    }
+
+    function testMatrixSum() {
+      console.log("--- Running Matrix Sum Tests ---");
+      let m1 = [[1, 2], [3, 4]]; let n1 = [[5, 6], [7, 8]]; let expectedM1 = [[6, 8], [10, 12]];
+      let actualM1 = m1.map((row, i) => row.map((val, j) => val + n1[i][j]));
+      console.assert(areArraysEqual(actualM1, expectedM1), "Test Matrix Sum 1 FAILED: Expected " + JSON.stringify(expectedM1) + ", Got " + JSON.stringify(actualM1));
+
+      let m2 = [[1, 0], [0, 1]]; let n2 = [[0, 1], [1, 0]]; let expectedM2 = [[1, 1], [1, 1]];
+      let actualM2 = m2.map((row, i) => row.map((val, j) => val + n2[i][j]));
+      console.assert(areArraysEqual(actualM2, expectedM2), "Test Matrix Sum 2 FAILED: Expected " + JSON.stringify(expectedM2) + ", Got " + JSON.stringify(actualM2));
+      
+      console.log("--- Matrix Sum Tests Complete ---");
+    }
+
+    function testLinearTransformation() {
+      console.log("--- Running Linear Transformation Tests ---");
+      let T1 = (x, y) => [2*x + y, x - y];
+      let vec1 = [3, 2]; let expectedLT1 = [8, 1];
+      let actualLT1 = T1(vec1[0], vec1[1]);
+      console.assert(areArraysEqual(actualLT1, expectedLT1), "Test Linear Transformation 1 FAILED: Expected " + JSON.stringify(expectedLT1) + ", Got " + JSON.stringify(actualLT1));
+
+      let T2 = (x, y) => [x, y]; // Identity transformation
+      let vec2 = [5, -2]; let expectedLT2 = [5, -2];
+      let actualLT2 = T2(vec2[0], vec2[1]);
+      console.assert(areArraysEqual(actualLT2, expectedLT2), "Test Linear Transformation 2 FAILED: Expected " + JSON.stringify(expectedLT2) + ", Got " + JSON.stringify(actualLT2));
+      
+      console.log("--- Linear Transformation Tests Complete ---");
+    }
+
+    function runAllChallengeLogicTests() {
+      console.log("=== Starting All Challenge Logic Tests ===");
+      testVectorSum();
+      testMatrixSum();
+      testLinearTransformation();
+      console.log("=== All Challenge Logic Tests Finished ===");
+      console.log("Check console for any FAILED assertions. If all tests passed, no FAILED messages will appear.");
+    }
   </script>
 </body>
 </html>
