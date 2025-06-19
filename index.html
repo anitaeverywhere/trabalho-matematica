@@ -289,6 +289,17 @@
       animation: pulseGlowRed 1.2s infinite alternate; /* Different or more intense animation */
     }
 
+    #modal-selecao-tela button{
+      background: linear-gradient(45deg, #6b4c11, #a98307);
+      border: 2px solid #d9c686;
+      padding: 10px 20px;
+      font-size: 18px;
+      color: #f9f1e7;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 10px;
+      font-family: 'Cinzel', serif;
+    }
     @keyframes pulseGlowRed {
       from {
         box-shadow: 0 0 25px rgba(255, 0, 0, 0.8), 0 0 35px rgba(220, 20, 60, 0.6);
@@ -346,6 +357,17 @@
     <!-- Content will be injected by JavaScript -->
   </div>
 
+  <!-- Modal for Screen Type Selection -->
+  <div id="modal-selecao-tela" style="position: fixed; z-index: 3500; /* Higher than menu */ left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; flex-direction: column;">
+    <div id="selecao-tela-content" style="background-color: #f9f1e7; color: #3a2f1c; padding: 40px; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.5); text-align: center; border: 3px solid #6b4c11; font-family: 'Cinzel', serif;">
+      <h1 style="font-size: 2.2em; margin-bottom: 30px; text-shadow: 1px 1px 2px #6b4c11;">Selecione o Tamanho da Tela</h1>
+      <p style="font-size: 1em; margin-bottom:30px;">Isso ajudará a ajustar a posição dos desafios.</p>
+      <button id="btn-tela-notebook" class="btn-selecao-tela">Notebook / Tela Pequena</button>
+      <button id="btn-tela-medio" class="btn-selecao-tela">Monitor Médio</button>
+      <button id="btn-tela-grande" class="btn-selecao-tela">Monitor Grande</button>
+    </div>
+  </div>
+
   <script>
     // --- DOM ELEMENT REFERENCES ---
     const menu = document.getElementById('menu');
@@ -362,6 +384,10 @@
     const transicaoFase = document.getElementById('transicao-fase');
 
     // Modal elements
+    const modalSelecaoTela = document.getElementById('modal-selecao-tela'); // Added
+    const btnTelaNotebook = document.getElementById('btn-tela-notebook'); // Added
+    const btnTelaMedio = document.getElementById('btn-tela-medio');     // Added
+    const btnTelaGrande = document.getElementById('btn-tela-grande');   // Added
     const customModal = document.getElementById('custom-modal');
     const modalMessage = document.getElementById('modal-message');
     const modalCloseButton = document.getElementById('modal-close-button');
@@ -385,6 +411,7 @@
     let dicasRestantesPocao = 0;
     let esperandoAnuncioPortal = false;
     let mapaAtual = 'aldeia';
+    let tipoTelaSelecionado = ''; // Added
     let faseAtual = 0;
     // let tempo = 60; // Removed
     // let cronometro; // Removed
@@ -590,11 +617,29 @@
       console.log("Ativando o Portal Perigoso!");
       let portalPerigosoObj = locaisAldeia.find(l => l.id === 'portal_perigoso');
 
+      let coordsPortalPerigoso;
+      switch (tipoTelaSelecionado) {
+        case 'notebook':
+          coordsPortalPerigoso = { x: 850, y: 100 };
+          break;
+        case 'medio':
+          coordsPortalPerigoso = { x: 880, y: 240 };
+          break;
+        case 'grande':
+          coordsPortalPerigoso = { x: 1200, y: 170 };
+          break;
+        default: 
+          console.warn("tipoTelaSelecionado não definido ou inválido em ativarPortalPerigoso, usando coords de Monitor Médio para portal_perigoso.");
+          coordsPortalPerigoso = { x: 880, y: 240 }; // Default to medio
+          break;
+      }
+      console.log(`Portal Perigoso coords para tela ${tipoTelaSelecionado}:`, coordsPortalPerigoso);
+
       if (!portalPerigosoObj) {
         portalPerigosoObj = {
           id: 'portal_perigoso',
           nome: 'O Portal Instável',
-          coords: { x: 1200, y: 170 }, // As per NPC dialogue
+          coords: coordsPortalPerigoso, // Use dynamic coords
           desafioAtual: null, 
           concluido: false,
           portalElement: null
@@ -604,22 +649,22 @@
         const portalDiv = document.createElement('div');
         portalDiv.id = 'portal-' + portalPerigosoObj.id;
         portalDiv.classList.add('portal-desafio'); 
-        // portalDiv.classList.add('portal-vermelho'); // Will be added by activatePortal or directly after
-        portalDiv.style.left = portalPerigosoObj.coords.x + 'px';
-        portalDiv.style.top = portalPerigosoObj.coords.y + 'px';
+        portalDiv.style.left = portalPerigosoObj.coords.x + 'px'; // Use dynamic coords
+        portalDiv.style.top = portalPerigosoObj.coords.y + 'px';  // Use dynamic coords
         portalDiv.style.display = 'none'; 
         gameArea.appendChild(portalDiv);
         portalPerigosoObj.portalElement = portalDiv;
       } else {
+        // Portal already exists, update its coords and DOM element position
+        portalPerigosoObj.coords = coordsPortalPerigoso;
+        if (portalPerigosoObj.portalElement) {
+            portalPerigosoObj.portalElement.style.left = portalPerigosoObj.coords.x + 'px';
+            portalPerigosoObj.portalElement.style.top = portalPerigosoObj.coords.y + 'px';
+        }
         portalPerigosoObj.concluido = false; 
       }
       
       activatePortal(portalPerigosoObj); 
-      // activatePortal will now also add 'portal-vermelho' if id is 'portal_perigoso'
-      // or we can do it explicitly again here to be sure, though it might be redundant if activatePortal handles it.
-      // if (portalPerigosoObj.portalElement) {
-      //   portalPerigosoObj.portalElement.classList.add('portal-vermelho');
-      // }
     }
 
     function iniciarJogo() {
@@ -638,63 +683,45 @@
       }
       atualizarHud(); // Initial HUD update
       
-      locaisAldeia = [
-        { 
-          id: 'taverna', 
-          nome: 'a Taverna do Javali Caolho', 
-          coords: { x: 360, y: 680 }, 
-          desafioAtual: null, 
-          concluido: false, 
-          portalElement: null 
-        },
-        { 
-          id: 'capela', 
-          nome: 'a Capela da Vila', 
-          coords: { x: 500, y: 150 }, 
-          desafioAtual: null, 
-          concluido: false, 
-          portalElement: null 
-        },
-        { 
-          id: 'mercado_sul', 
-          nome: 'o Mercado Sul', 
-          coords: { x: 1400, y: 780 }, 
-          desafioAtual: null, 
-          concluido: false, 
-          portalElement: null 
-        },
-        { 
-          id: 'ferraria', 
-          nome: 'a Ferraria do Pégaso Negro', 
-          coords: { x: 1720, y: 170 }, 
-          desafioAtual: null, 
-          concluido: false, 
-          portalElement: null 
-        }
-      ];
-
-      const gameAreaDiv = document.getElementById('game-area');
+      // Reset portal states (locaisAldeia definition and portal DOM creation will be in configurarEIniciarJogoPrincipal)
+      // For now, ensure these are reset for the logic that might run if game starts without screen selection.
       locaisAldeia.forEach(local => {
-        const portalDiv = document.createElement('div');
-        portalDiv.id = 'portal-' + local.id;
-        portalDiv.classList.add('portal-desafio');
-        portalDiv.style.left = local.coords.x + 'px';
-        portalDiv.style.top = local.coords.y + 'px';
-        gameAreaDiv.appendChild(portalDiv);
-        local.portalElement = portalDiv; 
+          local.concluido = false;
+          local.desafioAtual = null;
+          if (local.portalElement) {
+              local.portalElement.style.display = 'none';
+              local.portalElement.classList.remove('active-portal', 'portal-vermelho');
+          }
       });
-      
-      menu.style.transition = 'opacity 1s ease';
-      menu.style.opacity = '0';
-      setTimeout(() => {
-        menu.style.display = 'none';
-        gameArea.style.display = 'block';
-        setTimeout(() => { gameArea.style.opacity = '1'; }, 50); // Ensure opacity transition
-        aplicarFase(faseAtual); // faseAtual is 0 initially
-        // Obstacle is already placed by default CSS, first challenge will be random
-        mostrarFalaDigitada("Olá, herói! Fale comigo (pressione 'F') para receber sua primeira missão e proteger nossos portais!");
-        // Timer will start when first challenge prompt is closed or solved.
-      }, 1000);
+      portalAtual = null;
+      proximoLocalIndex = 0;
+
+
+      // --- Logic to transition from menu to screen selection modal ---
+      if (menu) { 
+        menu.style.opacity = '0'; 
+        setTimeout(() => {
+          menu.style.display = 'none'; 
+          
+          if (modalSelecaoTela) { 
+            modalSelecaoTela.style.display = 'flex'; 
+          } else {
+            console.error("Modal de seleção de tela não encontrado!");
+            // Fallback: If modal is missing, proceed to game setup (original flow)
+            // This part will be moved to a new function called by the modal's button
+            // configurarEIniciarJogoPrincipal(); 
+            console.log("Fallback: Modal de seleção não encontrado, jogo principal não iniciado automaticamente.");
+          }
+        }, 1000); 
+      } else {
+        console.error("Elemento #menu não encontrado!");
+        if (modalSelecaoTela) {
+            modalSelecaoTela.style.display = 'flex';
+        } else {
+            // Major issue if neither menu nor modal can be shown
+             console.error("ERRO CRÍTICO: Elemento #menu e #modal-selecao-tela não encontrados!");
+        }
+      }
     }
 
     function aplicarFase(fase) { // This function might need re-evaluation with fixed portals
@@ -974,6 +1001,72 @@
 
     // --- GAME INITIALIZATION & EVENT LISTENERS ---
 
+    function configurarEIniciarJogoPrincipal() {
+      console.log("Configurando e iniciando jogo principal com tipo de tela:", tipoTelaSelecionado);
+
+      // Initial structure (names are important, coords will be overwritten)
+      locaisAldeia = [
+        { id: 'taverna', nome: 'a Taverna do Javali Caolho', coords: {}, desafioAtual: null, concluido: false, portalElement: null },
+        { id: 'capela', nome: 'a Capela da Vila', coords: {}, desafioAtual: null, concluido: false, portalElement: null },
+        { id: 'mercado_sul', nome: 'o Mercado Sul', coords: {}, desafioAtual: null, concluido: false, portalElement: null },
+        { id: 'ferraria', nome: 'a Ferraria do Pégaso Negro', coords: {}, desafioAtual: null, concluido: false, portalElement: null }
+      ];
+
+      switch (tipoTelaSelecionado) {
+        case 'notebook':
+          console.log("Aplicando coordenadas para TELA NOTEBOOK");
+          locaisAldeia.find(l => l.id === 'taverna').coords = { x: 260, y: 550 };
+          locaisAldeia.find(l => l.id === 'capela').coords = { x: 420, y: 100 };
+          locaisAldeia.find(l => l.id === 'mercado_sul').coords = { x: 1100, y: 600 };
+          locaisAldeia.find(l => l.id === 'ferraria').coords = { x: 1380, y: 120 };
+          break;
+        case 'grande':
+          console.log("Aplicando coordenadas para TELA GRANDE");
+          locaisAldeia.find(l => l.id === 'taverna').coords = { x: 360, y: 680 };
+          locaisAldeia.find(l => l.id === 'capela').coords = { x: 500, y: 150 };
+          locaisAldeia.find(l => l.id === 'mercado_sul').coords = { x: 1400, y: 780 };
+          locaisAldeia.find(l => l.id === 'ferraria').coords = { x: 1720, y: 170 };
+          break;
+        case 'medio':
+        default: // Default to 'medio'
+          console.log("Aplicando coordenadas para TELA MÉDIA (ou padrão)");
+          locaisAldeia.find(l => l.id === 'taverna').coords = { x: 260, y: 670 };
+          locaisAldeia.find(l => l.id === 'capela').coords = { x: 400, y: 200 };
+          locaisAldeia.find(l => l.id === 'mercado_sul').coords = { x: 1200, y: 680 };
+          locaisAldeia.find(l => l.id === 'ferraria').coords = { x: 1430, y: 200 };
+          break;
+      }
+      
+      console.log("Coordenadas aplicadas:", JSON.stringify(locaisAldeia, null, 2));
+
+      const gameAreaDiv = gameArea; 
+      document.querySelectorAll('.portal-desafio').forEach(pd => pd.remove()); 
+      
+      locaisAldeia.forEach(local => {
+        local.concluido = false; 
+        local.desafioAtual = null; 
+        const portalDiv = document.createElement('div');
+        portalDiv.id = 'portal-' + local.id;
+        portalDiv.classList.add('portal-desafio');
+        portalDiv.style.left = local.coords.x + 'px';
+        portalDiv.style.top = local.coords.y + 'px';
+        portalDiv.style.display = 'none'; 
+        gameAreaDiv.appendChild(portalDiv);
+        local.portalElement = portalDiv; 
+      });
+      
+      portalAtual = null;
+      proximoLocalIndex = 0;
+      falouComNpc = false; 
+      if(npcHint) npcHint.style.display = 'block'; 
+
+      gameArea.style.display = 'block';
+      setTimeout(() => { gameArea.style.opacity = '1'; }, 50);
+      
+      aplicarFase(faseAtual); 
+      mostrarFalaDigitada("Olá, herói! Fale comigo (pressione 'F') para receber sua primeira missão e proteger nossos portais!");
+    }
+
     function prepararNovaAreaEIniciarRevelacao() {
       console.log("Preparando nova área e iniciando revelação...");
       const reinoPortalAreaEl = document.getElementById('reino-portal-area');
@@ -1160,7 +1253,7 @@
           }
           window.tremerTela(); 
 
-          mostrarFalaDigitada("Mas cuidado! Sinto uma energia terrível emanando de um novo portal... Ele surgiu em X:1200, Y:170! É instável e perigoso, marcado em vermelho!", true); 
+          mostrarFalaDigitada("Mas cuidado! Sinto uma energia terrível emanando de um novo portal... Ele surgiu perto da loja da Dona Cecília! É instável e perigoso, marcado em vermelho!", true); 
           ativarPortalPerigoso(); 
           
           esperandoAnuncioPortal = false; 
@@ -1168,7 +1261,7 @@
           return;
 
         } else if (portalAtual && portalAtual.id === 'portal_perigoso' && !portalAtual.concluido) {
-          mostrarFalaDigitada("O Portal Instável em X:1200, Y:170 ainda é uma ameaça! Você deve investigá-lo, Guardião! É muito perigoso.", true); 
+          mostrarFalaDigitada("O Portal Instável perto da loja da Dona Cecília ainda é uma ameaça! Você deve investigá-lo, Guardião! É muito perigoso.", true); 
                                           
         } else if (portalAtual === null || (portalAtual && portalAtual.concluido === true)) { 
             let localParaAtivar = null;
@@ -1247,6 +1340,28 @@
 
     // Start the game (typically after all definitions)
     // The menu button `iniciarJogo()` is the primary entry point now.
+
+    if (btnTelaNotebook) {
+      btnTelaNotebook.addEventListener('click', function() {
+        tipoTelaSelecionado = 'notebook';
+        if (modalSelecaoTela) modalSelecaoTela.style.display = 'none';
+        configurarEIniciarJogoPrincipal();
+      });
+    }
+    if (btnTelaMedio) {
+      btnTelaMedio.addEventListener('click', function() {
+        tipoTelaSelecionado = 'medio';
+        if (modalSelecaoTela) modalSelecaoTela.style.display = 'none';
+        configurarEIniciarJogoPrincipal();
+      });
+    }
+    if (btnTelaGrande) {
+      btnTelaGrande.addEventListener('click', function() {
+        tipoTelaSelecionado = 'grande';
+        if (modalSelecaoTela) modalSelecaoTela.style.display = 'none';
+        configurarEIniciarJogoPrincipal();
+      });
+    }
 
     // --- UNIT TESTS (for console execution) ---
     function areArraysEqual(arr1, arr2) {
