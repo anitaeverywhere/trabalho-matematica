@@ -56,10 +56,10 @@
       top: 0; left: 0;
       width: 100vw; height: 100vh;
       background: black;
-      pointer-events: none;
-      clip-path: circle(0% at center);
-      transition: clip-path 1s ease-in-out;
-      z-index: 1000;
+      pointer-events: none; /* Allows clicks to pass through if it's not fully covering initially */
+      clip-path: circle(0% at center); /* Initial state: hidden as a small point */
+      transition: clip-path 1s ease-in-out; /* Animation timing */
+      z-index: 4000; /* Ensure it's on top of other modals/game elements during transition */
     }
     #game-area {
       position: relative;
@@ -116,6 +116,17 @@
         box-shadow: 0 0 35px rgba(255, 255, 150, 1), 0 0 45px rgba(255, 223, 0, 0.8);
       }
     }
+
+    .tela-tremendo {
+      animation: tremor 0.5s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    @keyframes tremor {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); } /* More jittery */
+      20%, 40%, 60%, 80% { transform: translateX(3px); }
+    }
+
     #personagem {
       background-image: url('assets/persoganem_principal.png'); /* Updated path */
       background-size: cover; /* Or 'contain' if aspect ratio is an issue */
@@ -187,7 +198,10 @@
     }
     #pontuacao { left: 10px; }
     #fase-indicador { right: 10px; }
-    #cronometro { left: 50%; transform: translateX(-50%); }
+    /* #cronometro { left: 50%; transform: translateX(-50%); } */ /* Removed cronometro style */
+
+    /* .tela-tremendo will be kept from its first declaration */
+    /* @keyframes tremor will be kept from its first declaration */
 
     /* Modal Styling */
     #custom-modal, #custom-prompt-modal {
@@ -236,8 +250,12 @@
       width: 80%;
       font-family: 'Cinzel', serif; /* Ensure Cinzel for input */
     }
-    #pontuacao, #fase-indicador, #cronometro {
-      font-family: 'Cinzel', serif; /* Apply Cinzel to UI elements */
+    /* #pontuacao, #fase-indicador, #cronometro { // Style for removed elements
+      font-family: 'Cinzel', serif; 
+    } */
+    #player-hud span#vidas-hud .heart-icon { /* More specific selector for HUD hearts if needed */
+        /* font-size: 22px; */ /* Example if different size needed from modal */
+        /* margin-right: 3px; */
     }
     #npc-hint {
       font-family: 'Cinzel', serif; /* Apply Cinzel to NPC hint */
@@ -250,6 +268,35 @@
       font-size: 24px; /* Adjust as needed */
       margin-left: 5px; /* Example spacing if used inline */
     }
+    .tela-tremendo {
+      animation: tremor 0.5s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    @keyframes tremor {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); } /* More jittery */
+      20%, 40%, 60%, 80% { transform: translateX(3px); }
+    }
+
+    .portal-desafio.portal-vermelho {
+      border-color: #ff0000; /* Red border */
+      box-shadow: 0 0 15px rgba(255, 0, 0, 0.8), 0 0 25px rgba(200, 0, 0, 0.7); /* Intense red glow */
+    }
+
+    .portal-desafio.portal-vermelho.active-portal {
+      border-color: #ff4d4d; /* Brighter red border for active state */
+      box-shadow: 0 0 25px rgba(255, 0, 0, 1), 0 0 35px rgba(255, 50, 50, 0.8), 0 0 45px rgba(255, 100, 100, 0.5); /* More intense and layered red glow */
+      animation: pulseGlowRed 1.2s infinite alternate; /* Different or more intense animation */
+    }
+
+    @keyframes pulseGlowRed {
+      from {
+        box-shadow: 0 0 25px rgba(255, 0, 0, 0.8), 0 0 35px rgba(220, 20, 60, 0.6);
+      }
+      to {
+        box-shadow: 0 0 35px rgba(255, 50, 50, 1), 0 0 45px rgba(255, 100, 100, 0.8);
+      }
+    }
   </style>
 </head>
 <body>
@@ -258,15 +305,18 @@
     <button onclick="iniciarJogo()">Iniciar desafio</button>
   </div>
   <div id="game-area" style="opacity: 0; transition: opacity 1s ease;">
+    <div id="player-hud" style="position: fixed; top: 10px; left: 10px; background: rgba(249, 241, 231, 0.9); /* Parchment background */ color: #3a2f1c; /* Dark brown text */ padding: 10px 15px; border-radius: 8px; font-family: 'Cinzel', serif; font-size:18px; box-shadow: 0 0 10px rgba(0,0,0,0.3); z-index: 100; user-select: none;">
+      Vidas: <span id="vidas-hud"></span> | Moedas: <span id="moedas-hud">0</span> | Poção: <span id="pocao-hud">0</span>
+    </div>
     <div id="personagem"></div>
     <div id="npc">
       <div id="fala-npc">👋</div>
       <div id="npc-hint">Pressione F para falar</div>
     </div>
     <!-- <div id="obstaculo"></div> --> <!-- Removed static obstacle -->
-    <div id="pontuacao">Pontos: <span id="pontos">0</span></div>
-    <div id="fase-indicador">Fase: <span id="fase">1</span></div>
-    <div id="cronometro">Tempo: <span id="tempo">60</span>s</div>
+    <!-- <div id="pontuacao">Pontos: <span id="pontos">0</span></div> --> <!-- Removed -->
+    <!-- <div id="fase-indicador">Fase: <span id="fase">1</span></div> --> <!-- Removed -->
+    <!-- <div id="cronometro">Tempo: <span id="tempo">60</span>s</div> --> <!-- Removed cronometro display -->
     <div id="transicao-fase"></div>
     <audio id="som-transicao" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_1fbb34f7b4.mp3?filename=transition-visual-effect-6111.mp3"></audio>
   </div>
@@ -283,11 +333,17 @@
   <div id="custom-prompt-modal">
     <div id="prompt-modal-content">
       <p id="prompt-modal-question"></p>
-      <div id="vidas-display" style="margin-top: 10px; margin-bottom: 15px;"></div> <!-- Added style directly for simplicity -->
+      <div id="vidas-display" style="margin-top: 10px; margin-bottom: 15px;"></div> 
+      <div id="moedas-modal-display-container" style="margin-top: 5px; font-size: 16px;">Moedas: <span id="moedas-modal-display">0</span></div>
       <input type="text" id="prompt-modal-input">
       <button id="prompt-modal-submit-button">Enviar</button>
       <button id="prompt-modal-cancel-button">Cancelar</button>
+      <button id="usar-dica-pocao-btn" style="display:none; margin-left: 10px; background: #4CAF50; /* Greenish color for potion */ padding: 10px 20px; font-size: 18px; color: #f9f1e7; border-radius: 8px; cursor: pointer; font-family: 'Cinzel', serif; border: 2px solid #388E3C;">Usar Dica da Poção</button>
     </div>
+  </div>
+
+  <div id="reino-portal-area" style="display:none; width:100vw; height:100vh; background-size:cover; background-position:center; display:flex; justify-content:center; align-items:center; text-align:center; color:white; font-family: 'Cinzel', serif;">
+    <!-- Content will be injected by JavaScript -->
   </div>
 
   <script>
@@ -298,10 +354,10 @@
     const npc = document.getElementById('npc'); // Added for completeness, though not directly used in existing functions
     const falaNpc = document.getElementById('fala-npc');
     const npcHint = document.getElementById('npc-hint');
-    const obstaculo = document.getElementById('obstaculo');
-    const pontosEl = document.getElementById('pontos');
-    const faseEl = document.getElementById('fase');
-    const tempoEl = document.getElementById('tempo');
+    // const obstaculo = document.getElementById('obstaculo'); // Removed
+    // const pontosEl = document.getElementById('pontos'); // Removed
+    // const faseEl = document.getElementById('fase'); // Removed
+    // const tempoEl = document.getElementById('tempo'); // Removed
     const somTransicao = document.getElementById('som-transicao');
     const transicaoFase = document.getElementById('transicao-fase');
 
@@ -320,10 +376,18 @@
     let locaisAldeia = [];
     let portalAtual = null;
     let proximoLocalIndex = 0; 
-    let pontos = 0;
+    let currentChallengeDetails = null; // To store { challenge, localNome } for current prompt
+    // let pontos = 0; // Removed
+    let moedasJogador = 0;
+    let desafiosConcluidosContador = 0;
+    let desafioFerrariaConcluido = false;
+    let jogadorTemPocao = false; 
+    let dicasRestantesPocao = 0;
+    let esperandoAnuncioPortal = false;
+    let mapaAtual = 'aldeia';
     let faseAtual = 0;
-    let tempo = 60;
-    let cronometro;
+    // let tempo = 60; // Removed
+    // let cronometro; // Removed
     let x = 200, y = 260, passo = 20; // Character position and step
     let vidasJogador;
     const VIDAS_INICIAIS = 3;
@@ -331,6 +395,8 @@
 
     // --- NPC & DIALOGUE LOGIC ---
     let falouComNpc = false;
+    let falaNpcIntervaloDigitacao = null; 
+    let falaNpcPersistenteVisivel = false;
     let promptCallback = null; // To store the callback for the prompt (related to modal, but driven by NPC/Challenge interaction)
 
     const fases = [
@@ -375,27 +441,66 @@
     ];
 
     // --- MODAL LOGIC ---
-    function atualizarExibicaoVidas() {
-      const vidasDisplay = document.getElementById('vidas-display');
-      if (!vidasDisplay) return; // Should not happen if HTML is correct
-      vidasDisplay.innerHTML = ''; // Clear previous hearts
-
-      if (vidasJogador <= 0) {
-        vidasDisplay.textContent = 'Vidas: 0';
-      } else {
-        for (let i = 0; i < vidasJogador; i++) {
-          const heartSpan = document.createElement('span');
-          heartSpan.className = 'heart-icon';
-          heartSpan.textContent = '❤️';
-          vidasDisplay.appendChild(heartSpan);
+    function atualizarExibicaoVidas() { // This specifically updates the MODAL's lives display
+      const vidasModalDisplayEl = document.getElementById('vidas-display');
+      if (vidasModalDisplayEl) {
+        vidasModalDisplayEl.innerHTML = ''; // Clear previous hearts
+        if (vidasJogador <= 0) {
+            vidasModalDisplayEl.textContent = 'Vidas: 0';
+        } else {
+            for (let i = 0; i < vidasJogador; i++) {
+                const heartSpan = document.createElement('span');
+                heartSpan.className = 'heart-icon'; // Uses existing .heart-icon style
+                heartSpan.textContent = '❤️';
+                vidasModalDisplayEl.appendChild(heartSpan);
+            }
         }
       }
     }
+
+    function atualizarHud() {
+      // Vidas HUD
+      const vidasHudEl = document.getElementById('vidas-hud');
+      if (vidasHudEl) { 
+        vidasHudEl.innerHTML = ''; 
+        if (vidasJogador <= 0) {
+            vidasHudEl.textContent = '0'; // Show '0' if no lives
+        } else {
+            for (let i = 0; i < vidasJogador; i++) {
+              const heartSpan = document.createElement('span');
+              heartSpan.className = 'heart-icon'; 
+              heartSpan.textContent = '❤️';
+              vidasHudEl.appendChild(heartSpan);
+            }
+        }
+      }
+
+      // Moedas HUD
+      const moedasHudEl = document.getElementById('moedas-hud');
+      if (moedasHudEl) { 
+        moedasHudEl.textContent = moedasJogador;
+      }
+
+      // Poção HUD
+      const pocaoHudEl = document.getElementById('pocao-hud');
+      if (pocaoHudEl) {
+        pocaoHudEl.textContent = dicasRestantesPocao;
+      }
+    }
+
+    function atualizarModalDisplays() {
+      atualizarExibicaoVidas(); // Updates lives in modal
+
+      // Moedas no Modal
+      const moedasModalEl = document.getElementById('moedas-modal-display');
+      if (moedasModalEl) { 
+        moedasModalEl.textContent = moedasJogador;
+      }
+    }
     
-    function showCustomAlert(message, callback) { // Added callback parameter
+    function showCustomAlert(message, callback) { 
       modalMessage.textContent = message;
       customModal.style.display = 'flex';
-      // Store callback to be called when modal is closed
       customModal.onCloseCallback = callback; 
     }
 
@@ -403,17 +508,39 @@
       customModal.style.display = 'none';
       if (typeof customModal.onCloseCallback === 'function') {
         customModal.onCloseCallback();
-        customModal.onCloseCallback = null; // Clear callback after execution
+        customModal.onCloseCallback = null; 
       }
     }
 
     function showCustomPrompt(question, callback) {
       promptCallback = callback;
       promptModalQuestion.textContent = question;
-      promptModalInput.value = ''; // Clear previous input
-      atualizarExibicaoVidas(); // Update lives display when prompt is shown
+      promptModalInput.value = ''; 
+      atualizarModalDisplays(); // Updates lives and coins in modal
+
+      const usarDicaPocaoBtn = document.getElementById('usar-dica-pocao-btn');
+      if (dicasRestantesPocao > 0 && portalAtual && portalAtual.id !== 'portal_perigoso') {
+        usarDicaPocaoBtn.style.display = 'inline-block'; 
+        usarDicaPocaoBtn.onclick = function() { // Assign new or overwrite existing onclick
+          if (dicasRestantesPocao > 0) {
+            if (currentChallengeDetails && currentChallengeDetails.challenge && currentChallengeDetails.challenge.dica) {
+              showCustomAlert("Dica da Poção: " + currentChallengeDetails.challenge.dica);
+              dicasRestantesPocao--;
+              atualizarHud(); // Update HUD for potion count
+              atualizarModalDisplays(); // Also update modal displays if needed (e.g. if potion count was there)
+              usarDicaPocaoBtn.style.display = 'none'; // Hide button after use for this challenge instance
+            } else {
+              showCustomAlert("Não há dica disponível para este desafio ou detalhes do desafio não encontrados.");
+            }
+          }
+        };
+      } else {
+        usarDicaPocaoBtn.style.display = 'none';
+        usarDicaPocaoBtn.onclick = null; // Remove listener
+      }
+
       customPromptModal.style.display = 'flex';
-      promptModalInput.focus(); // Focus on the input field
+      promptModalInput.focus(); 
     }
 
     function submitCustomPrompt() {
@@ -441,47 +568,122 @@
       if (portalAtual && portalAtual.portalElement) {
         portalAtual.portalElement.style.display = 'none'; 
         portalAtual.portalElement.classList.remove('active-portal');
+        // Remove portal-vermelho if the previous portal had it (safer to do it here)
+        portalAtual.portalElement.classList.remove('portal-vermelho'); 
       }
       
       local.portalElement.style.display = 'block';
       local.portalElement.classList.add('active-portal');
       
-      // Assign a new challenge to this location each time it's activated by NPC
-      local.desafioAtual = desafios[Math.floor(Math.random() * desafios.length)];
-      local.concluido = false; // Explicitly mark as not completed for this new activation/challenge
+      if (local.id !== 'portal_perigoso') {
+        local.desafioAtual = desafios[Math.floor(Math.random() * desafios.length)];
+      } else {
+        local.desafioAtual = null; // Dangerous portal has no standard challenge from 'desafios' array
+                                 // Its challenge logic will be custom in apresentarDesafio or similar
+        local.portalElement.classList.add('portal-vermelho'); // Ensure it gets its distinct style
+      }
+      local.concluido = false; 
       portalAtual = local; 
+    }
+
+    function ativarPortalPerigoso() {
+      console.log("Ativando o Portal Perigoso!");
+      let portalPerigosoObj = locaisAldeia.find(l => l.id === 'portal_perigoso');
+
+      if (!portalPerigosoObj) {
+        portalPerigosoObj = {
+          id: 'portal_perigoso',
+          nome: 'O Portal Instável',
+          coords: { x: 1200, y: 170 }, // As per NPC dialogue
+          desafioAtual: null, 
+          concluido: false,
+          portalElement: null
+        };
+        locaisAldeia.push(portalPerigosoObj); 
+
+        const portalDiv = document.createElement('div');
+        portalDiv.id = 'portal-' + portalPerigosoObj.id;
+        portalDiv.classList.add('portal-desafio'); 
+        // portalDiv.classList.add('portal-vermelho'); // Will be added by activatePortal or directly after
+        portalDiv.style.left = portalPerigosoObj.coords.x + 'px';
+        portalDiv.style.top = portalPerigosoObj.coords.y + 'px';
+        portalDiv.style.display = 'none'; 
+        gameArea.appendChild(portalDiv);
+        portalPerigosoObj.portalElement = portalDiv;
+      } else {
+        portalPerigosoObj.concluido = false; 
+      }
+      
+      activatePortal(portalPerigosoObj); 
+      // activatePortal will now also add 'portal-vermelho' if id is 'portal_perigoso'
+      // or we can do it explicitly again here to be sure, though it might be redundant if activatePortal handles it.
+      // if (portalPerigosoObj.portalElement) {
+      //   portalPerigosoObj.portalElement.classList.add('portal-vermelho');
+      // }
     }
 
     function iniciarJogo() {
       vidasJogador = VIDAS_INICIAIS;
+      moedasJogador = 0;
+      desafiosConcluidosContador = 0;
+      desafioFerrariaConcluido = false;
+      jogadorTemPocao = false;
+      dicasRestantesPocao = 0;
+      esperandoAnuncioPortal = false;
+      mapaAtual = 'aldeia';
+      falaNpcPersistenteVisivel = false;
+      if (falaNpcIntervaloDigitacao) {
+        clearInterval(falaNpcIntervaloDigitacao);
+        falaNpcIntervaloDigitacao = null;
+      }
+      atualizarHud(); // Initial HUD update
       
       locaisAldeia = [
-        { id: 'taverna', nome: 'a Taverna do Javali Caolho', coords: { x: 150, y: 450 }, desafioAtual: null, concluido: false, portalElement: null }, 
-        { id: 'ferraria', nome: 'a Ferraria Punho de Ferro', coords: { x: 400, y: 150 }, desafioAtual: null, concluido: false, portalElement: null },
-        { id: 'mercado', nome: 'o Mercado Central', coords: { x: 350, y: 350 }, desafioAtual: null, concluido: false, portalElement: null }, 
-        { id: 'biblioteca', nome: 'a Biblioteca Antiga', coords: { x: 600, y: 200 }, desafioAtual: null, concluido: false, portalElement: null } 
+        { 
+          id: 'taverna', 
+          nome: 'a Taverna do Javali Caolho', 
+          coords: { x: 360, y: 680 }, 
+          desafioAtual: null, 
+          concluido: false, 
+          portalElement: null 
+        },
+        { 
+          id: 'capela', 
+          nome: 'a Capela da Vila', 
+          coords: { x: 500, y: 150 }, 
+          desafioAtual: null, 
+          concluido: false, 
+          portalElement: null 
+        },
+        { 
+          id: 'mercado_sul', 
+          nome: 'o Mercado Sul', 
+          coords: { x: 1400, y: 780 }, 
+          desafioAtual: null, 
+          concluido: false, 
+          portalElement: null 
+        },
+        { 
+          id: 'ferraria', 
+          nome: 'a Ferraria do Pégaso Negro', 
+          coords: { x: 1720, y: 170 }, 
+          desafioAtual: null, 
+          concluido: false, 
+          portalElement: null 
+        }
       ];
 
-      // Create portal elements dynamically
-      const gameAreaDiv = document.getElementById('game-area'); // Get game-area div
+      const gameAreaDiv = document.getElementById('game-area');
       locaisAldeia.forEach(local => {
         const portalDiv = document.createElement('div');
         portalDiv.id = 'portal-' + local.id;
         portalDiv.classList.add('portal-desafio');
         portalDiv.style.left = local.coords.x + 'px';
         portalDiv.style.top = local.coords.y + 'px';
-        // portalDiv.textContent = local.id[0]; // Optional: for debugging visibility
-        gameAreaDiv.appendChild(portalDiv); // Append to game-area
-        local.portalElement = portalDiv; // Store reference
+        gameAreaDiv.appendChild(portalDiv);
+        local.portalElement = portalDiv; 
       });
       
-      // Placeholder: Activate the first portal for testing
-      // This will be replaced by NPC interaction logic in the next step
-      // if (locaisAldeia.length > 0) {
-      //   activatePortal(locaisAldeia[0]); 
-      // }
-
-      // atualizarExibicaoVidas(); // Will be called by showCustomPrompt first time
       menu.style.transition = 'opacity 1s ease';
       menu.style.opacity = '0';
       setTimeout(() => {
@@ -501,76 +703,83 @@
       setTimeout(() => {
         document.body.style.backgroundColor = config.fundo;
         // obstaculo.style.backgroundColor = config.corObstaculo; // #obstaculo is removed
-        faseEl.textContent = (fase % fases.length) + 1; // Phase indicator still relevant
+        // faseEl.textContent = (fase % fases.length) + 1; // faseEl is removed, remove this line
         transicaoFase.style.clipPath = 'circle(0% at center)';
-        tempo = 60; // Reset timer for new phase
-        atualizarTempo();
+        // tempo = 60; // Removed
+        // atualizarTempo(); // Removed
       }, 500); // Duration of transition animation
     }
 
-    function retryCurrentChallenge() {
-        if (portalAtual && portalAtual.desafioAtual) {
-            // Simply call apresentarDesafio again for the current portal.
-            // It will use portalAtual.desafioAtual and will reset the timer.
-            apresentarDesafio(portalAtual.desafioAtual, portalAtual.nome);
-        } else {
-            // If no current portal/challenge, perhaps just go back to game or show generic message
-            console.warn("RetryCurrentChallenge chamado sem portalAtual ou desafioAtual válido.");
-        }
-    }
+    // function retryCurrentChallenge() { // Removed
+    //     if (portalAtual && portalAtual.desafioAtual) {
+    //         apresentarDesafio(portalAtual.desafioAtual, portalAtual.nome);
+    //     } else {
+    //         console.warn("RetryCurrentChallenge chamado sem portalAtual ou desafioAtual válido.");
+    //     }
+    // }
 
-    function iniciarContador() {
-      clearInterval(cronometro); // Clear any existing timer
-      cronometro = setInterval(() => {
-        tempo--;
-        atualizarTempo();
-        if (tempo <= 0) {
-          clearInterval(cronometro);
-          vidasJogador--;
-          atualizarExibicaoVidas();
-          // isModalOpen = true; // This is implicitly handled by showCustomAlert
+    // function iniciarContador() { // Removed
+    //   clearInterval(cronometro); 
+    //   cronometro = setInterval(() => {
+    //     tempo--;
+    //     atualizarTempo();
+    //     if (tempo <= 0) {
+    //       clearInterval(cronometro);
+    //       vidasJogador--;
+    //       atualizarExibicaoVidas();
+    //       if (vidasJogador <= 0) {
+    //         showCustomAlert("Fim de Jogo! O tempo esgotou na sua última vida. O portal repele você...", () => { 
+    //           location.reload(); 
+    //         });
+    //       } else {
+    //         if (portalAtual && portalAtual.desafioAtual) {
+    //             showCustomAlert(`Tempo Esgotado! Você perdeu uma vida. Tente este desafio novamente.\n${portalAtual.desafioAtual.dica}`, () => {
+    //                 retryCurrentChallenge();
+    //             });
+    //         } else {
+    //             showCustomAlert("Tempo Esgotado! Você perdeu uma vida.", () => {
+    //             });
+    //         }
+    //       }
+    //     }
+    //   }, 1000);
+    // }
 
-          if (vidasJogador <= 0) {
-            showCustomAlert("Fim de Jogo! O tempo esgotou na sua última vida. O portal repele você...", () => { 
-              location.reload(); 
-            });
-          } else {
-            // portalAtual should still be defined here, as should its desafioAtual
-            if (portalAtual && portalAtual.desafioAtual) {
-                showCustomAlert(`Tempo Esgotado! Você perdeu uma vida. Tente este desafio novamente.\n${portalAtual.desafioAtual.dica}`, () => {
-                    retryCurrentChallenge();
-                });
-            } else {
-                // Fallback if something is wrong with portalAtual state
-                showCustomAlert("Tempo Esgotado! Você perdeu uma vida.", () => {
-                    // Potentially guide back to NPC or just close modal
-                });
-            }
-          }
-        }
-      }, 1000);
-    }
-
-    function atualizarTempo() {
-      tempoEl.textContent = tempo;
-    }
+    // function atualizarTempo() { // Removed
+    //   tempoEl.textContent = tempo;
+    // }
 
     // --- NPC & DIALOGUE LOGIC --- (Continued)
-    function mostrarFalaDigitada(texto) {
-      falaNpc.textContent = ""; // Clear previous text
+    function mostrarFalaDigitada(texto, persistente = false) {
+      if (falaNpcIntervaloDigitacao) {
+        clearInterval(falaNpcIntervaloDigitacao); 
+        falaNpcIntervaloDigitacao = null;
+      }
+      falaNpc.textContent = ""; 
       falaNpc.style.display = "block";
+      falaNpcPersistenteVisivel = persistente; 
+
       let i = 0;
-      const interval = setInterval(() => {
+      falaNpcIntervaloDigitacao = setInterval(() => { // Assign to global interval
         if (i < texto.length) {
           falaNpc.textContent += texto[i];
           i++;
         } else {
-          clearInterval(interval);
-          setTimeout(() => {
-            falaNpc.style.display = "none";
-          }, 2500); // Message display duration
+          clearInterval(falaNpcIntervaloDigitacao); // Clear the global interval
+          falaNpcIntervaloDigitacao = null; 
+
+          if (!persistente) {
+            setTimeout(() => {
+              // Only hide if it's still not persistent AND no new message has started typing
+              if (!falaNpcPersistenteVisivel && !falaNpcIntervaloDigitacao) { 
+                 falaNpc.style.display = "none";
+              }
+            }, 2500); 
+          }
+          // If 'persistente' is true, it remains displayed.
+          // falaNpcPersistenteVisivel is already true if 'persistente' was true.
         }
-      }, 40); // Typing speed
+      }, 40); 
     }
 
     // --- CHARACTER MOVEMENT & COLLISION ---
@@ -649,8 +858,24 @@
       }
     ];
 
-    function apresentarDesafio(challenge, localNome) { // Added challenge and localNome parameters
-      clearInterval(cronometro); 
+    function verificarTodosPortaisConcluidos() {
+      const todosConcluidos = locaisAldeia.every(l => l.concluido);
+      if (todosConcluidos) {
+        // Ensure customAlert is available or use standard alert as fallback
+        if (typeof showCustomAlert === "function") {
+            showCustomAlert("Parabéns! Você selou todos os portais e salvou a aldeia!");
+        } else {
+            alert("Parabéns! Você selou todos os portais e salvou a aldeia!");
+        }
+        // Further game end logic can be added here, e.g., disabling NPC interaction for new tasks.
+        // For now, NPC will also give a similar message if talked to.
+      }
+      return todosConcluidos;
+    }
+
+    function apresentarDesafio(challenge, localNome) { 
+      currentChallengeDetails = { challenge, localNome }; // Set global for access by skip logic
+      // clearInterval(cronometro); // Removed
 
       if (!challenge) { // Use the passed challenge object
         console.error("Nenhum desafio fornecido para apresentar.");
@@ -669,35 +894,39 @@
 
       showCustomPrompt(promptText, function(resposta) {
         if (resposta && resposta.trim().toLowerCase() === challenge.resposta.toLowerCase()) { 
-          showCustomAlert(`Correto! Portal em ${localNome} selado!\n${challenge.explicacao}\n\nVolte a falar comigo para sua próxima tarefa.`, () => {
-            pontos++;
-            pontosEl.textContent = pontos;
-            // faseAtual++; // Not directly tied to individual portal completions anymore
-            // aplicarFase(faseAtual); // Phase changes might be different now
-            
-            portalAtual.concluido = true;
-            portalAtual.portalElement.classList.remove('active-portal'); // Remove active class
-            portalAtual.portalElement.style.display = 'none'; // Hide completed portal
-            // somTransicao.play(); // Optional: sound for portal completion
-            
-            let allDone = locaisAldeia.every(l => l.concluido);
-            // portalAtual = null; // Will be set to null by NPC logic or if all done.
-            
-            if (allDone) {
-                showCustomAlert("Parabéns! Você selou todos os portais e salvou a aldeia!");
-                // portalAtual = null; // Ensure no further interaction with this portal. Redundant if NPC sets it.
-                // No timer restart, game effectively paused until reload or new mechanism
-            } else {
-                // NPC will guide to next portal. For now, player needs to find NPC.
-                // iniciarContador(); // Timer should not auto-start; wait for next portal activation
+          desafiosConcluidosContador++;
+          const recompensaAtual = desafiosConcluidosContador * 5;
+          moedasJogador += recompensaAtual;
+          console.log(`Desafio ${desafiosConcluidosContador} concluído. Recompensa: ${recompensaAtual}. Total de moedas: ${moedasJogador}`);
+          
+          if (portalAtual && portalAtual.id === 'ferraria') {
+            desafioFerrariaConcluido = true;
+            console.log("Gatilho ativado: Desafio da Ferraria ('ferraria') concluído!");
+          }
+
+          showCustomAlert(
+            `Correto! Portal em ${localNome} selado!\nVocê ganhou ${recompensaAtual} moedas!\n\n${challenge.explicacao}\n\nVolte a falar comigo para sua próxima tarefa.`, 
+            () => {
+              atualizarHud(); // Update HUD with new coins (and same lives)
+              
+              if (portalAtual) { 
+                  portalAtual.concluido = true;
+                  if (portalAtual.portalElement) {
+                      portalAtual.portalElement.classList.remove('active-portal'); 
+                      portalAtual.portalElement.style.display = 'none'; 
+                  }
+              }
+              portalAtual = null; 
+              verificarTodosPortaisConcluidos();
             }
-          });
+          );
         } else if (resposta !== null) { 
           vidasJogador--;
-          atualizarExibicaoVidas(); 
+          atualizarHud(); // Update HUD with new lives
+          atualizarModalDisplays(); // Also update modal if it re-appears or is part of retry
 
           if (vidasJogador <= 0) {
-            clearInterval(cronometro); 
+            // clearInterval(cronometro); // Removed
             showCustomAlert("Fim de Jogo! Suas vidas acabaram. O portal repele você...", () => {
               location.reload(); 
             });
@@ -731,20 +960,86 @@
                 atualizarExibicaoVidas(); // Re-affirm lives display
                 customPromptModal.style.display = 'flex'; // Re-show prompt
               promptModalInput.focus();
-              tempo = 60; 
-              atualizarTempo();
-              iniciarContador(); // Restart timer for the same challenge attempt
+                // tempo = 60; // Removed
+                // atualizarTempo(); // Removed
+                // iniciarContador(); // Removed
             });
           }
         } else { // Prompt was cancelled
-            // If prompt is cancelled, player doesn't lose a life. Restart timer for current challenge.
-            // The portal and its challenge remain active.
-            iniciarContador(); 
+            // If prompt is cancelled, player doesn't lose a life. 
+            // The portal and its challenge remain active. No timer to restart.
         }
       });
     }
 
     // --- GAME INITIALIZATION & EVENT LISTENERS ---
+
+    function prepararNovaAreaEIniciarRevelacao() {
+      console.log("Preparando nova área e iniciando revelação...");
+      const reinoPortalAreaEl = document.getElementById('reino-portal-area');
+
+      if (gameArea) gameArea.style.display = 'none';
+
+      if (reinoPortalAreaEl) {
+        reinoPortalAreaEl.style.backgroundImage = "url('assets/portalPerigoso.png')"; 
+        reinoPortalAreaEl.innerHTML = `
+          <div id="mensagem-reino-portal" style="background:rgba(0,0,0,0.75); padding: 50px; border-radius:20px; border: 2px solid #999; max-width: 700px; box-shadow: 0 0 30px rgba(255,255,255,0.2);">
+            <h1 style="font-size: 2.6em; margin-bottom: 25px; text-shadow: 1px 1px 3px #000;">Você foi arrastado para um reino desconhecido...</h1>
+            <p style="font-size: 1.3em; line-height: 1.6; margin-bottom: 35px; text-shadow: 1px 1px 2px #000;">Nesse novo reino há novos desafios mais difíceis! Você precisa resolver os desafios para atacar os monstros.</p>
+            <button id="btn-continuar-reino" style="padding: 15px 35px; font-size: 22px; background: linear-gradient(45deg, #8b6b31, #cca047); border: 2px solid #f0e68c; color: #fff; border-radius: 10px; cursor: pointer; font-family: 'Cinzel', serif; text-shadow: 1px 1px 2px #000;">Continuar...</button>
+          </div>
+        `;
+        reinoPortalAreaEl.style.display = 'flex';
+        
+        // Position player character BEFORE adding button listener, but it will be under the message overlay.
+        x = window.innerWidth / 2 - (personagem.offsetWidth / 2); 
+        y = window.innerHeight / 2 - (personagem.offsetHeight / 2); 
+        personagem.style.left = x + 'px';
+        personagem.style.top = y + 'px';
+        personagem.style.display = 'block'; 
+
+        mapaAtual = 'reinoDoPortal';
+        console.log("Transicionado para: " + mapaAtual);
+
+        const btnContinuarReino = document.getElementById('btn-continuar-reino');
+        if (btnContinuarReino) {
+          btnContinuarReino.addEventListener('click', function() {
+            const msgReinoPortalEl = document.getElementById('mensagem-reino-portal');
+            if (msgReinoPortalEl) {
+              msgReinoPortalEl.style.display = 'none'; 
+            }
+            // Character should now be interactive on the new map background
+          });
+        } else {
+          console.error("Botão #btn-continuar-reino não encontrado após ser adicionado ao DOM.");
+        }
+
+      } else {
+        console.error("Elemento #reino-portal-area não encontrado!");
+      }
+
+      if (transicaoFase) { 
+        transicaoFase.style.transition = 'clip-path 1s ease-in-out'; 
+        transicaoFase.style.clipPath = 'circle(0% at center)'; 
+      } else {
+        console.error("Elemento #transicao-fase não encontrado para revelação!");
+      }
+    }
+
+    function iniciarAnimacaoTransicaoReino() {
+      console.log("Iniciando animação de transição para o reino do portal...");
+      
+      if (transicaoFase) { // Use global transicaoFase
+        transicaoFase.style.transition = 'clip-path 1s ease-in-out'; 
+        transicaoFase.style.clipPath = 'circle(150% at center)'; 
+
+        setTimeout(prepararNovaAreaEIniciarRevelacao, 1100); 
+      } else {
+        console.error("Elemento #transicao-fase não encontrado para iniciar animação!");
+        prepararNovaAreaEIniciarRevelacao(); 
+      }
+    }
+
     modalCloseButton.addEventListener('click', closeCustomAlert);
     promptModalSubmitButton.addEventListener('click', submitCustomPrompt);
     promptModalCancelButton.addEventListener('click', cancelCustomPrompt);
@@ -756,56 +1051,164 @@
 
     document.addEventListener("keydown", function(event) {
       // Modal takes precedence for key events
+      if (customPromptModal.style.display === 'flex' && event.key.toLowerCase() === 'p') {
+        event.preventDefault(); // Prevent 'p' from being typed into input if focused
+
+        console.log(`Challenge SKIPPED by user: ${currentChallengeDetails.challenge.text} at ${currentChallengeDetails.localNome}`);
+
+        customPromptModal.style.display = 'none';
+        
+        // pontos++; // Removed erroneous reference
+        // pontosEl.textContent = pontos; // Removed erroneous reference
+
+        desafiosConcluidosContador++;
+        const recompensaAtualSkip = desafiosConcluidosContador * 5; 
+        moedasJogador += recompensaAtualSkip;
+        console.log(`Desafio (SKIPPED) ${desafiosConcluidosContador} concluído. Recompensa: ${recompensaAtualSkip}. Total de moedas: ${moedasJogador}`);
+        // TODO: Update coin UI display here later -> Done by atualizarHud call
+
+        if (portalAtual) { 
+          portalAtual.concluido = true;
+          if (portalAtual.id === 'ferraria') { // Check if the skipped portal is 'ferraria'
+            desafioFerrariaConcluido = true;
+            console.log("Gatilho Ferraria ATIVADO ao PULAR o desafio ('P' key)!");
+          }
+          if (portalAtual.portalElement) {
+            portalAtual.portalElement.style.display = 'none';
+            portalAtual.portalElement.classList.remove('active-portal');
+          }
+        } else {
+          console.warn("Tried to skip challenge, but portalAtual was not set when 'P' was pressed.");
+          atualizarHud(); // Update HUD even if something went wrong
+          showCustomAlert("Desafio pulado! (portalAtual não definido) Volte ao Sábio.", () => { portalAtual = null; });
+          return; 
+        }
+        
+        atualizarHud(); // Update HUD with new coins
+
+        showCustomAlert(
+          `Desafio em ${currentChallengeDetails.localNome} PULADO!\nVocê ganhou ${recompensaAtualSkip} moedas!\n\n${currentChallengeDetails.challenge.explicacao}\n\nVolte a falar comigo para sua próxima tarefa.`,
+          () => {
+            portalAtual = null; 
+            verificarTodosPortaisConcluidos();
+          }
+        );
+        return; // Important: stop further keydown processing after skipping
+      }
+      
       if (customModal.style.display === 'flex' || customPromptModal.style.display === 'flex') {
         if (event.key === 'Enter' && customPromptModal.style.display === 'flex' && document.activeElement === promptModalInput) {
-          // Already handled by promptModalInput listener, no need to submit again here.
+          // Already handled by promptModalInput listener
         } else if (event.key === 'Escape') {
           if (customModal.style.display === 'flex') closeCustomAlert();
-          if (customPromptModal.style.display === 'flex') cancelCustomPrompt();
+          if (customPromptModal.style.display === 'flex') cancelCustomPrompt(); // cancelCustomPrompt will also call the promptCallback with null
         }
-        return; // Stop further processing if modal is open
+        return; // Stop further processing if modal is open (and not 'P' for skip)
       }
 
       // NPC Interaction
       if (event.key.toLowerCase() === 'f') {
-        if (!falouComNpc) { // First ever interaction
+        if (mapaAtual === 'aldeia') {
+          console.log("--- NPC Interaction Start (Aldeia Map) ---");
+          console.log("Estado de locaisAldeia:", JSON.stringify(locaisAldeia, null, 2));
+        console.log("desafioFerrariaConcluido:", desafioFerrariaConcluido);
+        console.log("jogadorTemPocao:", jogadorTemPocao);
+        console.log("esperandoAnuncioPortal:", esperandoAnuncioPortal);
+        console.log("portalAtual:", portalAtual ? { id: portalAtual.id, concluido: portalAtual.concluido } : null);
+        console.log("--- End NPC Interaction Start Logs ---");
+
+        if (falaNpcPersistenteVisivel === true && !esperandoAnuncioPortal) { 
+          falaNpc.style.display = 'none'; 
+          if (falaNpcIntervaloDigitacao) { 
+            clearInterval(falaNpcIntervaloDigitacao);
+            falaNpcIntervaloDigitacao = null;
+          }
+          falaNpcPersistenteVisivel = false; 
+          
+          event.preventDefault(); 
+          return; 
+        }
+
+        if (!falouComNpc) { 
           falouComNpc = true;
           npcHint.style.display = 'none'; 
         }
 
-        if (portalAtual == null || portalAtual.concluido) { // Player needs a new task
-          let localParaAtivar = null;
-          let todosConcluidos = true; // Assume all are done until proven otherwise
+        if (desafioFerrariaConcluido === true && jogadorTemPocao === false) {
+          mostrarFalaDigitada("Você foi valente na Ferraria! Tome esta Poção de Sabedoria. Ela lhe concederá 3 vislumbres da verdade quando mais precisar! (Pressione 'F' para continuar)", true);
+          
+          jogadorTemPocao = true;
+          dicasRestantesPocao = 3;
+          atualizarHud(); 
+          console.log("Poção de 3 dicas recebida! Esperando 'F' para anúncio do portal.");
 
-          for (let i = 0; i < locaisAldeia.length; i++) {
-            let indice = (proximoLocalIndex + i) % locaisAldeia.length;
-            if (!locaisAldeia[indice].concluido) {
-              localParaAtivar = locaisAldeia[indice];
-              proximoLocalIndex = (indice + 1) % locaisAldeia.length;
-              todosConcluidos = false;
-              break;
+          esperandoAnuncioPortal = true; 
+          return; 
+        
+        } else if (esperandoAnuncioPortal === true) {
+          if (typeof window.tremerTela !== 'function') {
+            window.tremerTela = function() {
+              const gameAreaEl = document.getElementById('game-area'); // Use global gameArea
+              if (gameAreaEl) { 
+                gameAreaEl.classList.add('tela-tremendo');
+                console.log("Tela tremendo!");
+                setTimeout(() => {
+                  gameAreaEl.classList.remove('tela-tremendo');
+                }, 500); 
+              }
             }
           }
+          window.tremerTela(); 
 
-          if (localParaAtivar) {
-            activatePortal(localParaAtivar);
-            mostrarFalaDigitada(`Sinto uma perturbação perto de ${localParaAtivar.nome}. Vá até lá e feche o portal!`);
-          } else if (todosConcluidos) {
-            mostrarFalaDigitada("Você selou todos os portais, Guardião! A aldeia está segura graças a você. Descanse, por enquanto...");
-            // Consider disabling further 'F' interactions or other game end state
-          } else {
-            // This case should ideally not be reached if logic is correct (e.g. all concluded but todosConcluidos is false)
-            // but as a fallback:
-            mostrarFalaDigitada("Estou meditando sobre os portais... Volte em breve.");
+          mostrarFalaDigitada("Mas cuidado! Sinto uma energia terrível emanando de um novo portal... Ele surgiu em X:1200, Y:170! É instável e perigoso, marcado em vermelho!", true); 
+          ativarPortalPerigoso(); 
+          
+          esperandoAnuncioPortal = false; 
+          desafioFerrariaConcluido = false; 
+          return;
+
+        } else if (portalAtual && portalAtual.id === 'portal_perigoso' && !portalAtual.concluido) {
+          mostrarFalaDigitada("O Portal Instável em X:1200, Y:170 ainda é uma ameaça! Você deve investigá-lo, Guardião! É muito perigoso.", true); 
+                                          
+        } else if (portalAtual === null || (portalAtual && portalAtual.concluido === true)) { 
+            let localParaAtivar = null;
+            
+            for (let i = 0; i < locaisAldeia.length; i++) {
+                let indice = (proximoLocalIndex + i) % locaisAldeia.length;
+                if (locaisAldeia[indice].id !== 'portal_perigoso' && !locaisAldeia[indice].concluido) {
+                    localParaAtivar = locaisAldeia[indice];
+                    proximoLocalIndex = (indice + 1) % locaisAldeia.length;
+                    break; 
+                }
+            }
+            
+            if (localParaAtivar) { 
+                 activatePortal(localParaAtivar);
+                 mostrarFalaDigitada(`Sinto uma perturbação perto de ${localParaAtivar.nome}. Vá até lá e feche o portal!`);
+            } else { 
+                const pPerigoso = locaisAldeia.find(l => l.id === 'portal_perigoso');
+                if (pPerigoso && !pPerigoso.concluido) { 
+                     mostrarFalaDigitada("O portal instável é a única ameaça restante. Devemos lidar com ele!", true); // Persistent
+                     if (!portalAtual || portalAtual.id !== 'portal_perigoso') {
+                        ativarPortalPerigoso(); 
+                     }
+                } else { 
+                    mostrarFalaDigitada("Você selou todos os portais conhecidos, Guardião! A aldeia está segura... por enquanto.");
+                }
+            }
+
+        } else if (portalAtual && !portalAtual.concluido) { 
+          if (jogadorTemPocao && dicasRestantesPocao > 0 && portalAtual.id !== 'portal_perigoso') { 
+             mostrarFalaDigitada(`O portal perto de ${portalAtual.nome} ainda está ativo. Concentre-se! Lembre-se da poção, se precisar de um vislumbre ('H').`);
+          } else if (portalAtual && portalAtual.id === 'portal_perigoso') { // Should be caught by the earlier specific else if
+             mostrarFalaDigitada(`Este portal é instável! Cuidado, Guardião! Use 'H' para um vislumbre da poção se precisar.`, true); // Persistent
+          } else { // Normal active portal, no potion or potion already used for this generic hint
+            mostrarFalaDigitada(`O portal perto de ${portalAtual.nome} ainda está ativo. Concentre-se nesse desafio!`);
           }
-        } else { // Player has an active, uncompleted task
-            mostrarFalaDigitada(`O portal perto de ${portalAtual.nome} ainda está ativo. Concentre-se nesse desafio! Ou peça uma dica sobre o tipo de problema.`);
-            // Optionally, could add a sub-menu here to ask for specific type of hint vs general hint.
-            // For now, this message serves as a reminder.
-            // If you want to show dicasFaseadas as well:
-            // const dicasDaFase = dicasFaseadas[faseAtual % dicasFaseadas.length];
-            // const dicaAleatoria = dicasDaFase[Math.floor(Math.random() * dicasDaFase.length)];
-            // mostrarFalaDigitada(dicaAleatoria); // This would overwrite the specific task hint.
+        }
+        // End of Aldeia-specific NPC logic
+        } else {
+          console.log("Tecla 'F' pressionada no mapa: " + mapaAtual + " - Nenhuma ação de NPC da aldeia.");
         }
       }
 
@@ -822,17 +1225,24 @@
       personagem.style.top = y + "px";
 
       // Collision with Portal
-      if (portalAtual && portalAtual.portalElement && portalAtual.portalElement.style.display === 'block' && !portalAtual.concluido) {
+      if (mapaAtual === 'aldeia' && portalAtual && portalAtual.portalElement && portalAtual.portalElement.style.display === 'block' && !portalAtual.concluido) {
         if (detectarColisao(personagem, portalAtual.portalElement)) {
-          // Ensure a challenge is assigned; activatePortal should handle this.
-          // If not, assign one as a fallback (though this indicates a potential logic flaw elsewhere).
-          if (!portalAtual.desafioAtual) { 
-            console.warn("Desafio não atribuído ao portal ativo. Atribuindo um aleatório como fallback.");
-            portalAtual.desafioAtual = desafios[Math.floor(Math.random() * desafios.length)];
+          if (portalAtual.id === 'portal_perigoso') {
+            // Special interaction for the dangerous portal
+            showCustomAlert("Você não chegou a tempo! O portal instável o suga para dentro!", iniciarAnimacaoTransicaoReino); 
+          } else {
+            // Normal portal interaction:
+            if (!portalAtual.desafioAtual) { 
+              console.warn("Desafio não atribuído ao portal ativo. Atribuindo um aleatório como fallback.");
+              portalAtual.desafioAtual = desafios[Math.floor(Math.random() * desafios.length)];
+            }
+            apresentarDesafio(portalAtual.desafioAtual, portalAtual.nome);
           }
-          apresentarDesafio(portalAtual.desafioAtual, portalAtual.nome); // Pass challenge object and localNome
         }
       }
+      // else if (mapaAtual === 'reinoDoPortal') {
+      //   // Future: Collision logic for monsters in reinoDoPortal
+      // }
     });
 
     // Start the game (typically after all definitions)
@@ -907,5 +1317,3 @@
       console.log("Check console for any FAILED assertions. If all tests passed, no FAILED messages will appear.");
     }
   </script>
-</body>
-</html>
