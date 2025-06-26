@@ -295,7 +295,7 @@
       animation: pulseGlowRed 1.2s infinite alternate; /* Different or more intense animation */
     }
 
-    #modal-selecao-tela button{
+    #modal-selecao-tela button, #tela-vitoria button { /* Adicionado #tela-vitoria button */
       background: linear-gradient(45deg, #9340ff, #9361ff);
       border: 2px solid #ffffff;
       padding: 10px 20px;
@@ -313,6 +313,60 @@
       to {
         box-shadow: 0 0 35px rgba(255, 50, 50, 1), 0 0 45px rgba(255, 100, 100, 0.8);
       }
+    }
+
+    /* Estilos para a Tela de Vitória */
+    #tela-vitoria {
+      display: none; /* Inicialmente oculta */
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-image: url('assets/menu_caverna.png'); /* MESMA IMAGEM DO MENU */
+      background-size: cover;
+      background-position: center;
+      color: #f9f1e7; /* Cor do texto similar ao menu */
+      text-shadow: 1px 1px 2px #000; /* Sombra para legibilidade, como no menu */
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      z-index: 5000; /* Acima de outros elementos do jogo */
+      font-family: 'Medievalsharp', cursive;
+      opacity: 0; /* Começa invisível para transição */
+      transition: opacity 1s ease-in-out; /* Transição de opacidade */
+    }
+    #tela-vitoria h1 {
+      font-family: 'Medievalsharp', cursive; /* Consistência com menu */
+      font-size: 3.2em; /* Ajuste para caber bem */
+      margin-bottom: 25px;
+      text-shadow: 2px 2px 4px #26116b; /* Sombra como no título do menu */
+      color: #f9f1e7; /* Cor principal do texto como no menu */
+    }
+    #tela-vitoria p {
+      font-size: 1.3em; /* Ajuste para caber bem */
+      margin-bottom: 35px; /* Espaço para botões */
+      max-width: 600px;
+      line-height: 1.6;
+    }
+    /* Estilo dos botões na tela de vitória para ser similar ao botão do menu */
+    #tela-vitoria button {
+      background: linear-gradient(45deg, #2b116b, #6918a7); /* Gradiente do menu */
+      border: 2px solid #ffffff; /* Borda como no menu */
+      padding: 15px 35px; /* Padding como no menu */
+      font-size: 20px; /* Tamanho da fonte */
+      color: #f9f1e7; /* Cor do texto */
+      border-radius: 12px; /* Raio da borda como no menu */
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(249, 247, 238, 0.6); /* Sombra como no menu */
+      transition: all 0.3s ease;
+      font-weight: 700;
+      font-family: 'Medievalsharp', cursive;
+    }
+    #tela-vitoria button:hover {
+      box-shadow: 0 0 35px rgb(109, 90, 255); /* Efeito hover como no menu */
+      transform: scale(1.1); /* Efeito hover como no menu */
     }
   </style>
 </head>
@@ -344,6 +398,14 @@
       <p id="modal-message"></p>
       <button id="modal-close-button">Fechar</button>
     </div>
+  </div>
+
+  <!-- Tela de Vitória -->
+  <div id="tela-vitoria">
+    <h1>Parabéns Jogador!</h1>
+    <p>Sua jornada heroica foi registrada! Baixe seu pergaminho.</p>
+    <button id="btn-baixar-pergaminho-final" style="margin-bottom: 15px;">Baixar Pergaminho</button>
+    <button onclick="location.reload()" style="margin-top: 10px;">Jogar Novamente</button>
   </div>
 
   <!-- Custom Modal for Prompts -->
@@ -1129,6 +1191,8 @@
     function iniciarDialogoMonstro() {
       const msgReinoPortalEl = document.getElementById('mensagem-reino-portal');
       const monstroDialogoContainerEl = document.getElementById('monstro-dialogo-container');
+      const btnProximoDialogo = document.getElementById('btn-proximo-dialogo');
+      const monstroFalaEl = document.getElementById('monstro-fala');
 
       if (msgReinoPortalEl) {
         msgReinoPortalEl.style.display = 'none';
@@ -1136,10 +1200,165 @@
       if (monstroDialogoContainerEl) {
         monstroDialogoContainerEl.style.display = 'block';
       }
-      // Personagem principal pode ser escondido aqui se necessário, ou coberto pelo diálogo do monstro
-      // personagem.style.display = 'none'; 
+
+      let dialogoState = 0;
+      btnProximoDialogo.onclick = () => {
+        dialogoState++;
+        if (dialogoState === 1) {
+          monstroFalaEl.textContent = "Você acha que pode me derrotar, mero mortal? Resolva este enigma, ou pereça!";
+        } else {
+          monstroDialogoContainerEl.style.display = 'none';
+          apresentarDesafioFinalMonstro();
+        }
+      };
     }
 
+    function apresentarDesafioFinalMonstro() {
+      const desafioFinal = {
+        type: 'sistema_linear_3x3',
+        text: 'Resolva o sistema para encontrar x, y, e z:\nx + y + z = 6\n2x - y + z = 3\nx + 2y - z = 2\nResponda no formato: x,y,z',
+        resposta: '1,2,3',
+        dica: 'Tente eliminar uma variável de cada vez, combinando as equações.',
+        explicacao: 'A solução é x=1, y=2, z=3. Verifique substituindo nas equações.'
+      };
+      currentChallengeDetails = { challenge: desafioFinal, localNome: "Covil do Monstro" }; // Para consistência com skip e poção
+
+      showCustomPrompt(desafioFinal.text, (resposta) => {
+        if (resposta && resposta.trim().toLowerCase() === desafioFinal.resposta.toLowerCase()) {
+          showCustomAlert("Incrível! Você resolveu o enigma e derrotou o monstro! O reino está salvo graças a você!", () => {
+            // TODO: Implementar tela de vitória e download do pergaminho
+            console.log("DESAFIO FINAL CONCLUÍDO! Implementar tela de vitória.");
+            transicionarParaTelaVitoria(); // Função a ser criada
+          });
+        } else if (resposta !== null) { // Resposta incorreta
+          vidasJogador--;
+          atualizarHud();
+          if (vidasJogador <= 0) {
+            showCustomAlert("GAME OVER! O monstro era poderoso demais... Suas vidas acabaram.", () => {
+              location.reload();
+            });
+          } else {
+            showCustomAlert(`Errado, mortal! O monstro ri da sua tentativa. Você perdeu uma vida.\n${desafioFinal.dica}`, () => {
+              apresentarDesafioFinalMonstro(); // Tenta o mesmo desafio novamente
+            });
+          }
+        } else { // Cancelou o prompt
+          showCustomAlert("Você não pode fugir do desafio final! O monstro espera...", () => {
+            apresentarDesafioFinalMonstro(); // Força tentar novamente
+          });
+        }
+      });
+    }
+
+    // Função placeholder para a tela de vitória
+    function transicionarParaTelaVitoria() {
+      console.log("Transicionando para a tela de vitória...");
+      const reinoPortalAreaEl = document.getElementById('reino-portal-area');
+      const gameAreaEl = document.getElementById('game-area'); // Esconder a área principal do jogo também
+      const hudEl = document.getElementById('player-hud'); // Esconder HUD
+      const telaVitoriaEl = document.getElementById('tela-vitoria');
+
+      if (reinoPortalAreaEl) reinoPortalAreaEl.style.display = 'none';
+      if (gameAreaEl) gameAreaEl.style.display = 'none';
+      if (hudEl) hudEl.style.display = 'none';
+
+      if (telaVitoriaEl) {
+        telaVitoriaEl.style.display = 'flex'; // Tornar visível para a transição de opacidade
+        setTimeout(() => { // Pequeno delay para garantir que o display:flex seja aplicado antes da opacidade
+          telaVitoriaEl.style.opacity = '1';
+        }, 50); // 50ms deve ser suficiente
+      } else {
+        // Fallback caso o elemento não seja encontrado
+        showCustomAlert("VITÓRIA! Parabéns Jogador! (Elemento da tela de vitória não encontrado)");
+      }
+      // Configurar o event listener para o novo botão de download
+      const btnBaixarFinal = document.getElementById('btn-baixar-pergaminho-final');
+      if (btnBaixarFinal) {
+        btnBaixarFinal.addEventListener('click', async () => {
+          const nomeJogador = await pedirNomeJogador();
+          if (nomeJogador) {
+            baixarPergaminho(nomeJogador);
+          } else {
+            showCustomAlert("Você decidiu não registrar seu nome no pergaminho. Mas sua lenda viverá!");
+          }
+        });
+      } else {
+        console.error("Botão 'btn-baixar-pergaminho-final' não encontrado na tela de vitória.");
+      }
+    }
+
+    // Funções pedirNomeJogador e baixarPergaminho foram removidas, pois não são mais necessárias.
+    // Restaurando as funções para a nova solicitação:
+
+    async function pedirNomeJogador() {
+      return new Promise((resolve) => {
+        showCustomPrompt("Bravo Herói, qual nome devemos inscrever neste pergaminho?", (nome) => {
+          if (nome && nome.trim() !== "") {
+            resolve(nome.trim());
+          } else {
+            resolve(null); // Jogador cancelou ou não inseriu nome
+          }
+        });
+        // Ajustar o prompt para o contexto de pedir nome (sem vidas, moedas, etc.)
+        const vidasDisplayEl = document.getElementById('vidas-display');
+        const moedasModalContainerEl = document.getElementById('moedas-modal-display-container');
+        const usarDicaBtnEl = document.getElementById('usar-dica-pocao-btn');
+        const promptInputEl = document.getElementById('prompt-modal-input');
+
+        if(vidasDisplayEl) vidasDisplayEl.style.display = 'none';
+        if(moedasModalContainerEl) moedasModalContainerEl.style.display = 'none';
+        if(usarDicaBtnEl) usarDicaBtnEl.style.display = 'none';
+        if(promptInputEl) {
+          promptInputEl.placeholder = "Seu nome épico";
+          promptInputEl.value = ''; // Limpar valor anterior
+        }
+      });
+    }
+
+    function baixarPergaminho(nomeHeroi) {
+      console.log(`Baixando pergaminho para ${nomeHeroi}...`);
+      const data = new Date();
+      const dataFormatada = `${data.getDate()}/${data.getMonth()+1}/${data.getFullYear()} às ${data.getHours()}:${data.getMinutes()}`;
+
+      const totalDesafios = desafiosConcluidosContador + 1; // Adicionando o desafio final do monstro
+
+      const conteudoPergaminho = `
+      📜 --- O Pergaminho da Glória de ${nomeHeroi} --- 📜
+
+      Registrado em: ${dataFormatada}
+
+      Louvado seja ${nomeHeroi}, o Guardião que enfrentou as sombras e restaurou a paz!
+      Sua bravura e sabedoria ecoarão através dos tempos.
+
+      Feitos Heroicos:
+      --------------------------------------------------
+      Portais Selados na Aldeia: ${desafiosConcluidosContador}
+      O Enigma Final do Monstro: Resolvido!
+      Total de Desafios Superados: ${totalDesafios}
+      Moedas de Ouro Coletadas: ${moedasJogador} 🪙
+      Vidas Restantes ao Triunfar: ${vidasJogador} ❤️
+      --------------------------------------------------
+
+      Que este pergaminho sirva como testemunho eterno de seus feitos.
+      A melodia de sua vitória será cantada em todas as tavernas,
+      e sua lenda inspirará futuras gerações de heróis!
+
+      Assinado: O Sábio Cronista Real 🖋️
+      `;
+
+      const blob = new Blob([conteudoPergaminho.trim()], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const linkDownload = document.createElement('a');
+      linkDownload.href = url;
+      linkDownload.download = `Pergaminho_Gloria_${nomeHeroi.replace(/\s+/g, '_')}.txt`;
+
+      document.body.appendChild(linkDownload);
+      linkDownload.click();
+      document.body.removeChild(linkDownload);
+      URL.revokeObjectURL(url);
+
+      showCustomAlert("Seu Pergaminho da Glória foi baixado! Que sua lenda seja eterna!");
+    }
 
     function iniciarAnimacaoTransicaoReino() {
       console.log("Iniciando animação de transição para o reino do portal...");
