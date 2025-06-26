@@ -3,52 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <title>Guardião do Portal Linear</title>
-  <style>
+  <style> 
+@import url('https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap');
+
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Medievalsharp', cursive;
       overflow: hidden;
       transition: background 1s ease;
       background-color: #e0f7fa;
     }
-       #menu {
-      opacity: 1;
-      transition: opacity 1s ease;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(62, 47, 28, 0.95); /* escuro como taverna */
-      color: #f9f1e7;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      z-index: 2000;
-      text-shadow: 1px 1px 2px #000;
-    }
+    #menu {
+  opacity: 1;
+  transition: opacity 1s ease;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url('assets/menu_caverna.png');
+  background-size: cover; /* Preenche o fundo sem distorcer */
+  background-repeat: no-repeat; /* Não repete a imagem */
+  background-position: center; /* Centraliza a imagem */
+  color: #f9f1e7;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 2000;
+  text-shadow: 1px 1px 2px #000;
+}
+
     #menu h1 {
-      font-family: 'Cinzel', serif;
+      font-family: 'Medievalsharp', cursive;
       font-size: 3em;
       margin-bottom: 30px;
-      text-shadow: 2px 2px 4px #6b4c11;
+      text-shadow: 2px 2px 4px #26116b;
     }
     #menu button {
-      background: linear-gradient(45deg, #6b4c11, #a98307);
-      border: 2px solid #d9c686;
+      background: linear-gradient(45deg, #2b116b, #6918a7);
+      border: 2px solid #ffffff;
       padding: 15px 40px;
       font-size: 22px;
       color: #f9f1e7;
       border-radius: 12px;
       cursor: pointer;
-      box-shadow: 0 0 25px rgba(169, 131, 7, 0.7);
+      box-shadow: 0 0 25px rgba(249, 247, 238, 0.7);
       transition: all 0.3s ease;
       font-weight: 700;
-      font-family: 'Cinzel', serif;
+      font-family: 'Medievalsharp', cursive;
     }
     #menu button:hover {
-      box-shadow: 0 0 40px rgba(169, 131, 7, 1);
+      box-shadow: 0 0 40px rgb(109, 90, 255);
       transform: scale(1.1);
     }
     #transicao-fase {
@@ -224,11 +230,11 @@
       box-shadow: 0 0 20px rgba(0,0,0,0.5);
       text-align: center;
       border: 3px solid #6b4c11; /* Wooden-like border */
-      font-family: 'Cinzel', serif; /* Medieval font */
+      font-family: 'Medievalsharp', cursive; /* Medieval font */
       max-width: 500px;
     }
     #modal-content p, #prompt-modal-content p { /* Ensure paragraphs within modals also use Cinzel */
-      font-family: 'Cinzel', serif;
+      font-family: 'Medievalsharp', cursive;
     }
     #modal-close-button, #prompt-modal-submit-button, #prompt-modal-cancel-button {
       background: linear-gradient(45deg, #6b4c11, #a98307);
@@ -239,7 +245,7 @@
       border-radius: 8px;
       cursor: pointer;
       margin: 10px;
-      font-family: 'Cinzel', serif;
+      font-family: 'Medievalsharp', cursive;
     }
     #prompt-modal-input {
       padding: 10px;
@@ -248,17 +254,17 @@
       border-radius: 5px;
       margin-bottom: 20px;
       width: 80%;
-      font-family: 'Cinzel', serif; /* Ensure Cinzel for input */
+      font-family: 'Medievalsharp', cursive; /* Ensure Cinzel for input */
     }
     /* #pontuacao, #fase-indicador, #cronometro { // Style for removed elements
-      font-family: 'Cinzel', serif; 
+      font-family: 'Medievalsharp', cursive;
     } */
     #player-hud span#vidas-hud .heart-icon { /* More specific selector for HUD hearts if needed */
         /* font-size: 22px; */ /* Example if different size needed from modal */
         /* margin-right: 3px; */
     }
     #npc-hint {
-      font-family: 'Cinzel', serif; /* Apply Cinzel to NPC hint */
+      font-family: 'Medievalsharp', cursive; /* Apply Cinzel to NPC hint */
       background: #fff8e1; /* Existing - light parchment */
       color: #3a2f1c; /* Darker text for better contrast on light parchment */
       border: 1px solid #6b4c11; /* Consistent border */
@@ -290,15 +296,15 @@
     }
 
     #modal-selecao-tela button{
-      background: linear-gradient(45deg, #6b4c11, #a98307);
-      border: 2px solid #d9c686;
+      background: linear-gradient(45deg, #9340ff, #9361ff);
+      border: 2px solid #ffffff;
       padding: 10px 20px;
       font-size: 18px;
       color: #f9f1e7;
       border-radius: 8px;
       cursor: pointer;
       margin: 10px;
-      font-family: 'Cinzel', serif;
+      font-family: 'Medievalsharp', cursive;
     }
     @keyframes pulseGlowRed {
       from {
@@ -316,7 +322,7 @@
     <button onclick="iniciarJogo()">Iniciar desafio</button>
   </div>
   <div id="game-area" style="opacity: 0; transition: opacity 1s ease;">
-    <div id="player-hud" style="position: fixed; top: 10px; left: 10px; background: rgba(249, 241, 231, 0.9); /* Parchment background */ color: #3a2f1c; /* Dark brown text */ padding: 10px 15px; border-radius: 8px; font-family: 'Cinzel', serif; font-size:18px; box-shadow: 0 0 10px rgba(0,0,0,0.3); z-index: 100; user-select: none;">
+    <div id="player-hud" style="position: fixed; top: 10px; left: 10px; background: rgba(249, 241, 231, 0.9); /* Parchment background */ color: #3a2f1c; /* Dark brown text */ padding: 10px 15px; border-radius: 8px; font-family: 'Medievalsharp', cursive; font-size:18px; box-shadow: 0 0 10px rgba(0,0,0,0.3); z-index: 100; user-select: none;">
       Vidas: <span id="vidas-hud"></span> | Moedas: <span id="moedas-hud">0</span> | Poção: <span id="pocao-hud">0</span>
     </div>
     <div id="personagem"></div>
@@ -349,17 +355,17 @@
       <input type="text" id="prompt-modal-input">
       <button id="prompt-modal-submit-button">Enviar</button>
       <button id="prompt-modal-cancel-button">Cancelar</button>
-      <button id="usar-dica-pocao-btn" style="display:none; margin-left: 10px; background: #4CAF50; /* Greenish color for potion */ padding: 10px 20px; font-size: 18px; color: #f9f1e7; border-radius: 8px; cursor: pointer; font-family: 'Cinzel', serif; border: 2px solid #388E3C;">Usar Dica da Poção</button>
+      <button id="usar-dica-pocao-btn" style="display:none; margin-left: 10px; background: #4CAF50; /* Greenish color for potion */ padding: 10px 20px; font-size: 18px; color: #f9f1e7; border-radius: 8px; cursor: pointer; font-family: 'Medievalsharp', cursive; border: 2px solid #388E3C;">Usar Dica da Poção</button>
     </div>
   </div>
 
-  <div id="reino-portal-area" style="display:none; width:100vw; height:100vh; background-size:cover; background-position:center; display:flex; justify-content:center; align-items:center; text-align:center; color:white; font-family: 'Cinzel', serif;">
+  <div id="reino-portal-area" style="display:none; width:100vw; height:100vh; background-size:cover; background-position:center; display:flex; justify-content:center; align-items:center; text-align:center; color:white; font-family: 'Medievalsharp', cursive;">
     <!-- Content will be injected by JavaScript -->
   </div>
 
   <!-- Modal for Screen Type Selection -->
   <div id="modal-selecao-tela" style="position: fixed; z-index: 3500; /* Higher than menu */ left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; flex-direction: column;">
-    <div id="selecao-tela-content" style="background-color: #f9f1e7; color: #3a2f1c; padding: 40px; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.5); text-align: center; border: 3px solid #6b4c11; font-family: 'Cinzel', serif;">
+    <div id="selecao-tela-content" style="background-color: #f9f1e7; color: #3a2f1c; padding: 40px; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.5); text-align: center; border: 3px solid #6b4c11; font-family: 'Medievalsharp', cursive;">
       <h1 style="font-size: 2.2em; margin-bottom: 30px; text-shadow: 1px 1px 2px #6b4c11;">Selecione o Tamanho da Tela</h1>
       <p style="font-size: 1em; margin-bottom:30px;">Isso ajudará a ajustar a posição dos desafios.</p>
       <button id="btn-tela-notebook" class="btn-selecao-tela">Notebook / Tela Pequena</button>
@@ -1074,35 +1080,36 @@
       if (gameArea) gameArea.style.display = 'none';
 
       if (reinoPortalAreaEl) {
-        reinoPortalAreaEl.style.backgroundImage = "url('assets/portalPerigoso.png')"; 
+        reinoPortalAreaEl.style.backgroundImage = "url('assets/portalPerigoso.png')";
         reinoPortalAreaEl.innerHTML = `
-          <div id="mensagem-reino-portal" style="background:rgba(0,0,0,0.75); padding: 50px; border-radius:20px; border: 2px solid #999; max-width: 700px; box-shadow: 0 0 30px rgba(255,255,255,0.2);">
+          <div id="mensagem-reino-portal" style="background:rgba(0,0,0,0.75); padding: 50px; border-radius:20px; border: 2px solid #999; max-width: 700px; box-shadow: 0 0 30px rgba(255,255,255,0.2); text-align: center;">
             <h1 style="font-size: 2.6em; margin-bottom: 25px; text-shadow: 1px 1px 3px #000;">Você foi arrastado para um reino desconhecido...</h1>
             <p style="font-size: 1.3em; line-height: 1.6; margin-bottom: 35px; text-shadow: 1px 1px 2px #000;">Nesse novo reino há novos desafios mais difíceis! Você precisa resolver os desafios para atacar os monstros.</p>
-            <button id="btn-continuar-reino" style="padding: 15px 35px; font-size: 22px; background: linear-gradient(45deg, #8b6b31, #cca047); border: 2px solid #f0e68c; color: #fff; border-radius: 10px; cursor: pointer; font-family: 'Cinzel', serif; text-shadow: 1px 1px 2px #000;">Continuar...</button>
+            <button id="btn-continuar-reino" style="padding: 15px 35px; font-size: 22px; background: linear-gradient(45deg, #8b6b31, #cca047); border: 2px solid #f0e68c; color: #fff; border-radius: 10px; cursor: pointer; font-family: 'Medievalsharp', cursive; text-shadow: 1px 1px 2px #000;">Continuar...</button>
+          </div>
+          <div id="monstro-dialogo-container" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+            <img id="monstro-imagem" src="assets/Monstro.png" alt="Monstro" style="max-width: 300px; margin-bottom: 20px;">
+            <div id="monstro-fala" style="background: rgba(0,0,0,0.8); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; font-size: 1.2em;">
+              Se divertiu tentando acabar com meus portais impossiveis?
+            </div>
+            <button id="btn-proximo-dialogo" style="padding: 10px 20px; font-size: 18px; background: linear-gradient(45deg, #8b6b31, #cca047); border: 2px solid #f0e68c; color: #fff; border-radius: 8px; cursor: pointer; font-family: 'Medievalsharp', cursive;">Próximo</button>
           </div>
         `;
         reinoPortalAreaEl.style.display = 'flex';
-        
+
         // Position player character BEFORE adding button listener, but it will be under the message overlay.
-        x = window.innerWidth / 2 - (personagem.offsetWidth / 2); 
-        y = window.innerHeight / 2 - (personagem.offsetHeight / 2); 
+        x = window.innerWidth / 2 - (personagem.offsetWidth / 2);
+        y = window.innerHeight / 2 - (personagem.offsetHeight / 2);
         personagem.style.left = x + 'px';
         personagem.style.top = y + 'px';
-        personagem.style.display = 'block'; 
+        personagem.style.display = 'block'; // Keep character displayed, might be hidden by monster dialogue initially
 
         mapaAtual = 'reinoDoPortal';
         console.log("Transicionado para: " + mapaAtual);
 
         const btnContinuarReino = document.getElementById('btn-continuar-reino');
         if (btnContinuarReino) {
-          btnContinuarReino.addEventListener('click', function() {
-            const msgReinoPortalEl = document.getElementById('mensagem-reino-portal');
-            if (msgReinoPortalEl) {
-              msgReinoPortalEl.style.display = 'none'; 
-            }
-            // Character should now be interactive on the new map background
-          });
+          btnContinuarReino.addEventListener('click', iniciarDialogoMonstro); // Changed to call iniciarDialogoMonstro
         } else {
           console.error("Botão #btn-continuar-reino não encontrado após ser adicionado ao DOM.");
         }
@@ -1111,13 +1118,28 @@
         console.error("Elemento #reino-portal-area não encontrado!");
       }
 
-      if (transicaoFase) { 
-        transicaoFase.style.transition = 'clip-path 1s ease-in-out'; 
-        transicaoFase.style.clipPath = 'circle(0% at center)'; 
+      if (transicaoFase) {
+        transicaoFase.style.transition = 'clip-path 1s ease-in-out';
+        transicaoFase.style.clipPath = 'circle(0% at center)';
       } else {
         console.error("Elemento #transicao-fase não encontrado para revelação!");
       }
     }
+
+    function iniciarDialogoMonstro() {
+      const msgReinoPortalEl = document.getElementById('mensagem-reino-portal');
+      const monstroDialogoContainerEl = document.getElementById('monstro-dialogo-container');
+
+      if (msgReinoPortalEl) {
+        msgReinoPortalEl.style.display = 'none';
+      }
+      if (monstroDialogoContainerEl) {
+        monstroDialogoContainerEl.style.display = 'block';
+      }
+      // Personagem principal pode ser escondido aqui se necessário, ou coberto pelo diálogo do monstro
+      // personagem.style.display = 'none'; 
+    }
+
 
     function iniciarAnimacaoTransicaoReino() {
       console.log("Iniciando animação de transição para o reino do portal...");
